@@ -8,7 +8,10 @@ coverage/
 bin/
 obj/
 .vs/
-backend/F1Fantasy.Api/.vs/
+
+# Visual Studio user files
+*.user
+*.suo
 
 # Logs
 *.log
