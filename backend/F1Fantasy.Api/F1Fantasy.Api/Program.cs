@@ -61,6 +61,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
+builder.Services.AddScoped<DriverService>();
+builder.Services.AddScoped<ConstructorService>();
+builder.Services.AddScoped<RaceService>();
 
 var app = builder.Build();
 
