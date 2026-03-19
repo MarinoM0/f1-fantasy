@@ -64,6 +64,7 @@ builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<ConstructorService>();
 builder.Services.AddScoped<RaceService>();
+builder.Services.AddScoped<IFantasyTeamService, FantasyTeamService>();
 
 var app = builder.Build();
 
