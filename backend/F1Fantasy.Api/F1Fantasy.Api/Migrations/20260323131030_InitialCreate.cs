@@ -121,7 +121,7 @@ namespace F1Fantasy.Api.Migrations
                     BudgetCap = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     RemainingBudget = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    ConstructorId = table.Column<int>(type: "int", nullable: false),
+                    ConstructorId = table.Column<int>(type: "int", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -132,8 +132,7 @@ namespace F1Fantasy.Api.Migrations
                         name: "FK_FantasyTeams_Constructors_ConstructorId",
                         column: x => x.ConstructorId,
                         principalTable: "Constructors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FantasyTeams_Users_UserId",
                         column: x => x.UserId,
@@ -206,6 +205,30 @@ namespace F1Fantasy.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FantasyTeamConstructors",
+                columns: table => new
+                {
+                    FantasyTeamId = table.Column<int>(type: "int", nullable: false),
+                    ConstructorId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FantasyTeamConstructors", x => new { x.FantasyTeamId, x.ConstructorId });
+                    table.ForeignKey(
+                        name: "FK_FantasyTeamConstructors_Constructors_ConstructorId",
+                        column: x => x.ConstructorId,
+                        principalTable: "Constructors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FantasyTeamConstructors_FantasyTeams_FantasyTeamId",
+                        column: x => x.FantasyTeamId,
+                        principalTable: "FantasyTeams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FantasyTeamDrivers",
                 columns: table => new
                 {
@@ -244,6 +267,11 @@ namespace F1Fantasy.Api.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Drivers_ConstructorId",
                 table: "Drivers",
+                column: "ConstructorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FantasyTeamConstructors_ConstructorId",
+                table: "FantasyTeamConstructors",
                 column: "ConstructorId");
 
             migrationBuilder.CreateIndex(
@@ -311,6 +339,9 @@ namespace F1Fantasy.Api.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "FantasyTeamConstructors");
+
             migrationBuilder.DropTable(
                 name: "FantasyTeamDrivers");
 

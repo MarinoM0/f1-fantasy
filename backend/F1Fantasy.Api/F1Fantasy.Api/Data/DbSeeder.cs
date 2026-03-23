@@ -24,17 +24,17 @@ namespace F1Fantasy.Api.Data
 
             var constructors = new List<Constructor>
             {
-                new() { Name = "McLaren", Code = "MCL", Price = 28.00m },
-                new() { Name = "Mercedes", Code = "MER", Price = 27.50m },
-                new() { Name = "Red Bull Racing", Code = "RBR", Price = 27.00m },
-                new() { Name = "Ferrari", Code = "FER", Price = 28.50m },
-                new() { Name = "Williams", Code = "WIL", Price = 22.00m },
-                new() { Name = "Racing Bulls", Code = "RBT", Price = 20.50m },
-                new() { Name = "Aston Martin", Code = "AMR", Price = 23.00m },
-                new() { Name = "Haas F1 Team", Code = "HAA", Price = 19.50m },
-                new() { Name = "Audi", Code = "AUD", Price = 21.00m },
-                new() { Name = "Alpine", Code = "ALP", Price = 20.00m },
-                new() { Name = "Cadillac", Code = "CAD", Price = 21.50m }
+                new() { Name = "McLaren", Code = "MCL", Price = 28.50m },
+                new() { Name = "Mercedes", Code = "MER", Price = 29.90m },
+                new() { Name = "Red Bull Racing", Code = "RBR", Price = 28.80m },
+                new() { Name = "Ferrari", Code = "FER", Price = 23.90m },
+                new() { Name = "Williams", Code = "WIL", Price = 13.20m },
+                new() { Name = "Racing Bulls", Code = "RBT", Price = 7.50m },
+                new() { Name = "Aston Martin", Code = "AMR", Price = 9.10m },
+                new() { Name = "Haas F1 Team", Code = "HAA", Price = 8.60m },
+                new() { Name = "Audi", Code = "AUD", Price = 5.40m },
+                new() { Name = "Alpine", Code = "ALP", Price = 13.70m },
+                new() { Name = "Cadillac", Code = "CAD", Price = 5.20m }
             };
 
             await dbContext.Constructors.AddRangeAsync(constructors);
@@ -64,38 +64,38 @@ namespace F1Fantasy.Api.Data
 
             var drivers = new List<Driver>
         {
-            new() { FirstName = "Lando", LastName = "Norris", Code = "NOR", Price = 30.00m, ConstructorId = mcl.Id },
-            new() { FirstName = "Oscar", LastName = "Piastri", Code = "PIA", Price = 29.00m, ConstructorId = mcl.Id },
+            new() { FirstName = "Lando", LastName = "Norris", Code = "NOR", Price = 26.80m, ConstructorId = mcl.Id },
+            new() { FirstName = "Oscar", LastName = "Piastri", Code = "PIA", Price = 24.90m, ConstructorId = mcl.Id },
 
-            new() { FirstName = "George", LastName = "Russell", Code = "RUS", Price = 27.00m, ConstructorId = mer.Id },
-            new() { FirstName = "Kimi", LastName = "Antonelli", Code = "ANT", Price = 23.50m, ConstructorId = mer.Id },
+            new() { FirstName = "George", LastName = "Russell", Code = "RUS", Price = 28.00m, ConstructorId = mer.Id },
+            new() { FirstName = "Kimi", LastName = "Antonelli", Code = "ANT", Price = 23.80m, ConstructorId = mer.Id },
 
-            new() { FirstName = "Max", LastName = "Verstappen", Code = "VER", Price = 31.00m, ConstructorId = rbr.Id },
-            new() { FirstName = "Isack", LastName = "Hadjar", Code = "HAD", Price = 20.00m, ConstructorId = rbr.Id },
+            new() { FirstName = "Max", LastName = "Verstappen", Code = "VER", Price = 28.10m, ConstructorId = rbr.Id },
+            new() { FirstName = "Isack", LastName = "Hadjar", Code = "HAD", Price = 13.90m, ConstructorId = rbr.Id },
 
-            new() { FirstName = "Charles", LastName = "Leclerc", Code = "LEC", Price = 29.50m, ConstructorId = fer.Id },
-            new() { FirstName = "Lewis", LastName = "Hamilton", Code = "HAM", Price = 27.50m, ConstructorId = fer.Id },
+            new() { FirstName = "Charles", LastName = "Leclerc", Code = "LEC", Price = 23.40m, ConstructorId = fer.Id },
+            new() { FirstName = "Lewis", LastName = "Hamilton", Code = "HAM", Price = 22.90m, ConstructorId = fer.Id },
 
-            new() { FirstName = "Carlos", LastName = "Sainz", Code = "SAI", Price = 24.00m, ConstructorId = wil.Id },
-            new() { FirstName = "Alexander", LastName = "Albon", Code = "ALB", Price = 23.00m, ConstructorId = wil.Id },
+            new() { FirstName = "Carlos", LastName = "Sainz", Code = "SAI", Price = 12.20m, ConstructorId = wil.Id },
+            new() { FirstName = "Alexander", LastName = "Albon", Code = "ALB", Price = 10.80m, ConstructorId = wil.Id },
 
-            new() { FirstName = "Liam", LastName = "Lawson", Code = "LAW", Price = 20.50m, ConstructorId = rbt.Id },
-            new() { FirstName = "Arvid", LastName = "Lindblad", Code = "LIN", Price = 18.50m, ConstructorId = rbt.Id },
+            new() { FirstName = "Liam", LastName = "Lawson", Code = "LAW", Price = 6.9m, ConstructorId = rbt.Id },
+            new() { FirstName = "Arvid", LastName = "Lindblad", Code = "LIN", Price = 7.40m, ConstructorId = rbt.Id },
 
-            new() { FirstName = "Fernando", LastName = "Alonso", Code = "ALO", Price = 24.50m, ConstructorId = amr.Id },
-            new() { FirstName = "Lance", LastName = "Stroll", Code = "STR", Price = 19.00m, ConstructorId = amr.Id },
+            new() { FirstName = "Fernando", LastName = "Alonso", Code = "ALO", Price = 8.80m, ConstructorId = amr.Id },
+            new() { FirstName = "Lance", LastName = "Stroll", Code = "STR", Price = 6.80m, ConstructorId = amr.Id },
 
-            new() { FirstName = "Esteban", LastName = "Ocon", Code = "OCO", Price = 20.50m, ConstructorId = haa.Id },
-            new() { FirstName = "Oliver", LastName = "Bearman", Code = "BEA", Price = 19.50m, ConstructorId = haa.Id },
+            new() { FirstName = "Esteban", LastName = "Ocon", Code = "OCO", Price = 8.50m, ConstructorId = haa.Id },
+            new() { FirstName = "Oliver", LastName = "Bearman", Code = "BEA", Price = 8.60m, ConstructorId = haa.Id },
 
-            new() { FirstName = "Nico", LastName = "Hulkenberg", Code = "HUL", Price = 20.00m, ConstructorId = aud.Id },
-            new() { FirstName = "Gabriel", LastName = "Bortoleto", Code = "BOR", Price = 18.50m, ConstructorId = aud.Id },
+            new() { FirstName = "Nico", LastName = "Hulkenberg", Code = "HUL", Price = 5.60m, ConstructorId = aud.Id },
+            new() { FirstName = "Gabriel", LastName = "Bortoleto", Code = "BOR", Price = 6.40m, ConstructorId = aud.Id },
 
-            new() { FirstName = "Pierre", LastName = "Gasly", Code = "GAS", Price = 21.00m, ConstructorId = alp.Id },
-            new() { FirstName = "Franco", LastName = "Colapinto", Code = "COL", Price = 19.50m, ConstructorId = alp.Id },
+            new() { FirstName = "Pierre", LastName = "Gasly", Code = "GAS", Price = 12.80m, ConstructorId = alp.Id },
+            new() { FirstName = "Franco", LastName = "Colapinto", Code = "COL", Price = 7.00m, ConstructorId = alp.Id },
 
-            new() { FirstName = "Sergio", LastName = "Perez", Code = "PER", Price = 22.50m, ConstructorId = cad.Id },
-            new() { FirstName = "Valtteri", LastName = "Bottas", Code = "BOT", Price = 20.50m, ConstructorId = cad.Id }
+            new() { FirstName = "Sergio", LastName = "Perez", Code = "PER", Price = 6.40m, ConstructorId = cad.Id },
+            new() { FirstName = "Valtteri", LastName = "Bottas", Code = "BOT", Price = 4.70m, ConstructorId = cad.Id }
         };
 
             await dbContext.Drivers.AddRangeAsync(drivers);

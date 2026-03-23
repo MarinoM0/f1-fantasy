@@ -9,5 +9,6 @@
         public ICollection<Driver> Drivers { get; set; } = new List<Driver>();
         public ICollection<FantasyTeam> FantasyTeams { get; set; } = new List<FantasyTeam>();
         public ICollection<RaceResultDriver> RaceResultDrivers { get; set; } = new List<RaceResultDriver>();
+        public ICollection<FantasyTeamConstructor> FantasyTeamConstructors { get; set; } = new List<FantasyTeamConstructor>();
     }
 }

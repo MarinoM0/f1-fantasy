@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Race> Races => Set<Race>();
     public DbSet<FantasyTeam> FantasyTeams => Set<FantasyTeam>();
     public DbSet<FantasyTeamDriver> FantasyTeamDrivers => Set<FantasyTeamDriver>();
+    public DbSet<FantasyTeamConstructor> FantasyTeamConstructors => Set<FantasyTeamConstructor>();
     public DbSet<RaceResult> RaceResults => Set<RaceResult>();
     public DbSet<RaceResultDriver> RaceResultDrivers => Set<RaceResultDriver>();
     public DbSet<TeamScore> TeamScores => Set<TeamScore>();
@@ -74,11 +75,6 @@ public class AppDbContext : DbContext
             entity.Property(x => x.Name).HasMaxLength(100).IsRequired();
             entity.Property(x => x.BudgetCap).HasPrecision(10, 2);
             entity.Property(x => x.RemainingBudget).HasPrecision(10, 2);
-
-            entity.HasOne(x => x.Constructor)
-                .WithMany(x => x.FantasyTeams)
-                .HasForeignKey(x => x.ConstructorId)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<FantasyTeamDriver>(entity =>
@@ -92,6 +88,20 @@ public class AppDbContext : DbContext
             entity.HasOne(x => x.Driver)
                 .WithMany(x => x.FantasyTeamDrivers)
                 .HasForeignKey(x => x.DriverId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<FantasyTeamConstructor>(entity =>
+        {
+            entity.HasKey(x => new { x.FantasyTeamId, x.ConstructorId });
+
+            entity.HasOne(x => x.FantasyTeam)
+                .WithMany(x => x.FantasyTeamConstructors)
+                .HasForeignKey(x => x.FantasyTeamId);
+
+            entity.HasOne(x => x.Constructor)
+                .WithMany(x => x.FantasyTeamConstructors)
+                .HasForeignKey(x => x.ConstructorId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 

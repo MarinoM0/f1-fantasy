@@ -1,4 +1,6 @@
-﻿namespace F1Fantasy.Api.DTOs
+﻿using F1Fantasy.Api.Dtos;
+
+namespace F1Fantasy.Api.DTOs
 {
     public class FantasyTeamDto
     {
@@ -10,11 +12,7 @@
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
 
-        public int ConstructorId { get; set; }
-        public string ConstructorName { get; set; } = string.Empty;
-        public string ConstructorCode { get; set; } = string.Empty;
-        public decimal ConstructorPrice { get; set; }
-
+        public List<FantasyTeamConstructorDto> Constructors { get; set; } = new();
         public List<FantasyTeamDriverDto> Drivers { get; set; } = new();
     }
 }

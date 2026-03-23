@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace F1Fantasy.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260312104644_InitialCreate")]
+    [Migration("20260323131030_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -158,7 +158,7 @@ namespace F1Fantasy.Api.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<int>("ConstructorId")
+                    b.Property<int?>("ConstructorId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")
@@ -187,6 +187,21 @@ namespace F1Fantasy.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("FantasyTeams");
+                });
+
+            modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeamConstructor", b =>
+                {
+                    b.Property<int>("FantasyTeamId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ConstructorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FantasyTeamId", "ConstructorId");
+
+                    b.HasIndex("ConstructorId");
+
+                    b.ToTable("FantasyTeamConstructors");
                 });
 
             modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeamDriver", b =>
@@ -350,11 +365,9 @@ namespace F1Fantasy.Api.Migrations
 
             modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeam", b =>
                 {
-                    b.HasOne("F1Fantasy.Api.Models.Constructor", "Constructor")
+                    b.HasOne("F1Fantasy.Api.Models.Constructor", null)
                         .WithMany("FantasyTeams")
-                        .HasForeignKey("ConstructorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("ConstructorId");
 
                     b.HasOne("F1Fantasy.Api.Models.AppUser", "User")
                         .WithOne("FantasyTeam")
@@ -362,9 +375,26 @@ namespace F1Fantasy.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeamConstructor", b =>
+                {
+                    b.HasOne("F1Fantasy.Api.Models.Constructor", "Constructor")
+                        .WithMany("FantasyTeamConstructors")
+                        .HasForeignKey("ConstructorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("F1Fantasy.Api.Models.FantasyTeam", "FantasyTeam")
+                        .WithMany("FantasyTeamConstructors")
+                        .HasForeignKey("FantasyTeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Constructor");
 
-                    b.Navigation("User");
+                    b.Navigation("FantasyTeam");
                 });
 
             modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeamDriver", b =>
@@ -454,6 +484,8 @@ namespace F1Fantasy.Api.Migrations
                 {
                     b.Navigation("Drivers");
 
+                    b.Navigation("FantasyTeamConstructors");
+
                     b.Navigation("FantasyTeams");
 
                     b.Navigation("RaceResultDrivers");
@@ -468,6 +500,8 @@ namespace F1Fantasy.Api.Migrations
 
             modelBuilder.Entity("F1Fantasy.Api.Models.FantasyTeam", b =>
                 {
+                    b.Navigation("FantasyTeamConstructors");
+
                     b.Navigation("FantasyTeamDrivers");
                 });
 

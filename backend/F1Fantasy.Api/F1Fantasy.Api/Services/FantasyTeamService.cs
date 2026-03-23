@@ -1,4 +1,5 @@
 ﻿using F1Fantasy.Api.Data;
+using F1Fantasy.Api.Dtos;
 using F1Fantasy.Api.DTOs;
 using F1Fantasy.Api.Interfaces;
 using F1Fantasy.Api.Models;
@@ -21,9 +22,9 @@ namespace F1Fantasy.Api.Services
         {
             var teamName = request.Name.Trim();
 
-            if(String.IsNullOrWhiteSpace(teamName))
+            if (string.IsNullOrWhiteSpace(teamName))
             {
-                throw new ArgumentException("Team name is required");
+                throw new ArgumentException("Team name is required.");
             }
 
             if (request.DriverIds.Count != 5)
@@ -31,11 +32,21 @@ namespace F1Fantasy.Api.Services
                 throw new ArgumentException("You must select exactly 5 drivers.");
             }
 
-            var distinctDriverIds = request.DriverIds.Distinct().ToList();
+            if (request.ConstructorIds.Count != 2)
+            {
+                throw new ArgumentException("You must select exactly 2 constructors.");
+            }
 
+            var distinctDriverIds = request.DriverIds.Distinct().ToList();
             if (distinctDriverIds.Count != 5)
             {
                 throw new ArgumentException("Drivers must be unique.");
+            }
+
+            var distinctConstructorIds = request.ConstructorIds.Distinct().ToList();
+            if (distinctConstructorIds.Count != 2)
+            {
+                throw new ArgumentException("Constructors must be unique.");
             }
 
             var existingTeam = await _dbContext.FantasyTeams
@@ -47,12 +58,13 @@ namespace F1Fantasy.Api.Services
                 throw new InvalidOperationException("User already has a fantasy team.");
             }
 
-            var constructor = await _dbContext.Constructors
-            .FirstOrDefaultAsync(x => x.Id == request.ConstructorId);
+            var constructors = await _dbContext.Constructors
+                .Where(x => distinctConstructorIds.Contains(x.Id))
+                .ToListAsync();
 
-            if (constructor is null)
+            if (constructors.Count != 2)
             {
-                throw new ArgumentException("Selected constructor does not exist.");
+                throw new ArgumentException("One or more selected constructors do not exist.");
             }
 
             var drivers = await _dbContext.Drivers
@@ -64,8 +76,7 @@ namespace F1Fantasy.Api.Services
                 throw new ArgumentException("One or more selected drivers do not exist.");
             }
 
-            var totalDriverPrice = drivers.Sum(x => x.Price);
-            var totalPrice = totalDriverPrice + constructor.Price;
+            var totalPrice = drivers.Sum(x => x.Price) + constructors.Sum(x => x.Price);
 
             if (totalPrice > BudgetCap)
             {
@@ -78,11 +89,16 @@ namespace F1Fantasy.Api.Services
                 BudgetCap = BudgetCap,
                 RemainingBudget = BudgetCap - totalPrice,
                 UserId = userId,
-                ConstructorId = constructor.Id,
                 FantasyTeamDrivers = distinctDriverIds
                     .Select(driverId => new FantasyTeamDriver
                     {
                         DriverId = driverId
+                    })
+                    .ToList(),
+                FantasyTeamConstructors = distinctConstructorIds
+                    .Select(constructorId => new FantasyTeamConstructor
+                    {
+                        ConstructorId = constructorId
                     })
                     .ToList()
             };
@@ -93,7 +109,7 @@ namespace F1Fantasy.Api.Services
             return await GetMyTeamOrThrowAsync(userId);
         }
 
-        public async Task<FantasyTeamDto?> GetMyTeamAsync (int userId)
+        public async Task<FantasyTeamDto?> GetMyTeamAsync(int userId)
         {
             return await _dbContext.FantasyTeams
                 .AsNoTracking()
@@ -104,32 +120,36 @@ namespace F1Fantasy.Api.Services
                     Name = x.Name,
                     BudgetCap = x.BudgetCap,
                     RemainingBudget = x.RemainingBudget,
-                    UserId = x.UserId,
                     Username = x.User.Username,
-                    ConstructorId = x.ConstructorId,
-                    ConstructorName = x.Constructor.Name,
-                    ConstructorCode = x.Constructor.Code,
-                    ConstructorPrice = x.Constructor.Price,
+                    Constructors = x.FantasyTeamConstructors
+                        .OrderBy(tc => tc.Constructor.Name)
+                        .Select(tc => new FantasyTeamConstructorDto
+                        {
+                            Id = tc.Constructor.Id,
+                            Name = tc.Constructor.Name,
+                            Code = tc.Constructor.Code,
+                            Price = tc.Constructor.Price
+                        })
+                        .ToList(),
                     Drivers = x.FantasyTeamDrivers
-                    .OrderBy(td => td.Driver.LastName)
-                    .ThenBy(td => td.Driver.FirstName)
-                    .Select(td => new FantasyTeamDriverDto
-                    {
-                        Id = td.Driver.Id,
-                        FirstName = td.Driver.FirstName,
-                        LastName = td.Driver.LastName,
-                        FullName = td.Driver.FirstName + " " + td.Driver.LastName,
-                        Code = td.Driver.Code,
-                        Price = td.Driver.Price,
-                        ConstructorId = td.Driver.ConstructorId,
-                        ConstructorName = td.Driver.Constructor.Name,
-                        ConstructorCode = td.Driver.Constructor.Code
-                    })
-                    .ToList()
+                        .OrderBy(td => td.Driver.LastName)
+                        .ThenBy(td => td.Driver.FirstName)
+                        .Select(td => new FantasyTeamDriverDto
+                        {
+                            Id = td.Driver.Id,
+                            FirstName = td.Driver.FirstName,
+                            LastName = td.Driver.LastName,
+                            FullName = td.Driver.FirstName + " " + td.Driver.LastName,
+                            Code = td.Driver.Code,
+                            Price = td.Driver.Price,
+                            ConstructorId = td.Driver.ConstructorId,
+                            ConstructorName = td.Driver.Constructor.Name,
+                            ConstructorCode = td.Driver.Constructor.Code
+                        })
+                        .ToList()
                 })
-            .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();
         }
-
         private async Task<FantasyTeamDto> GetMyTeamOrThrowAsync(int userId)
         {
             var team = await GetMyTeamAsync(userId);
