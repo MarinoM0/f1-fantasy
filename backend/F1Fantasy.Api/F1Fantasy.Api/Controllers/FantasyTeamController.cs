@@ -36,7 +36,13 @@ namespace F1Fantasy.Api.Controllers
 
             if (team is null)
             {
-                return NotFound("Fantasy team not found.");
+                return NotFound(new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Title = "Not Found",
+                    Detail = "Fantasy team not found.",
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             return Ok(team);

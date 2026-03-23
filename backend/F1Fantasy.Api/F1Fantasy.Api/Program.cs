@@ -2,6 +2,7 @@ using System.Text;
 using F1Fantasy.Api.Auth;
 using F1Fantasy.Api.Data;
 using F1Fantasy.Api.Interfaces;
+using F1Fantasy.Api.Middleware;
 using F1Fantasy.Api.Models;
 using F1Fantasy.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -77,6 +78,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandlingMiddleware();
 
 app.UseCors("Frontend");
 
