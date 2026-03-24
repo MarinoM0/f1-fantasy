@@ -1,0 +1,24 @@
+<div class="shell">
+    <header class="shell__header">
+        <div class="shell__brand">
+            <img src="assets/images/f1-logo.svg" alt="F1 Fantasy logo" class="shell__logo" />
+            <a routerLink="/dashboard">Fantasy</a>
+        </div>
+
+        <nav class="shell__nav">
+            <div class="shell__nav-main">
+                <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+                <a routerLink="/team-builder" routerLinkActive="active">Team Builder</a>
+                <a routerLink="/my-team" routerLinkActive="active">My Team</a>
+            </div>
+            <div class="shell__nav-auth">
+                <a routerLink="/login" routerLinkActive="active">Login</a>
+                <a routerLink="/register" routerLinkActive="active">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="shell__content">
+        <router-outlet />
+    </main>
+</div>
