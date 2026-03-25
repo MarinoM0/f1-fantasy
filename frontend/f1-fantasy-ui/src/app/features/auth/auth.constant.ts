@@ -1,0 +1,1 @@
+export const AUTH_TOKEN_STORAGE_KEY = 'f1_fantasy_auth_token';
