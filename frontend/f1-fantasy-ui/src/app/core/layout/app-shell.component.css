@@ -4,6 +4,10 @@
   color: var(--color-text);
 }
 
+.shell--auth {
+  background: #090909;
+}
+
 .shell__header {
   position: sticky;
   top: 0;
@@ -102,5 +106,16 @@
   width: min(var(--container-width), calc(100% - 2rem));
   margin: 0 auto;
   padding: 2rem 0 3rem;
+}
+
+.shell__header--auth {
+  position: relative;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.shell__content--auth {
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 

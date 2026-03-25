@@ -1,4 +1,79 @@
-<section class="page-card auth-page">
-  <h1 class="page-title">Login</h1>
-  <p class="page-subtitle">Please enter your credentials to log in.</p>
+<section class="auth-shell">
+  <div class="auth-backdrop" aria-hidden="true">
+    <div class="speed-streak speed-streak-one"></div>
+    <div class="speed-streak speed-streak-two"></div>
+    <div class="track-line track-line-one"></div>
+    <div class="track-line track-line-two"></div>
+    <div class="grid-pattern"></div>
+  </div>
+
+  <div class="auth-layout">
+    <div class="auth-copy">
+      <p class="auth-eyebrow">F1 Fantasy League</p>
+      <h1 class="auth-hero-title">Back on the grid.</h1>
+      <p class="auth-hero-text">
+        Build your lineup, watch every lap, and stay in control of your team from lights out to the chequered flag.
+      </p>
+    </div>
+
+    <section class="page-card auth-page">
+      <p class="auth-kicker">Welcome back</p>
+      <h2 class="page-title">Sign in</h2>
+      <p class="page-subtitle">Enter your details to manage your F1 team.</p>
+
+      <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email" />
+
+          @if (emailControl.touched && emailControl.invalid) {
+            <div class="form-error">
+              @if (emailControl.errors?.['required']) {
+                <span>Email is required.</span>
+              }
+              @if (emailControl.errors?.['email']) {
+                <span>Enter a valid email address.</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password" />
+
+          @if (passwordControl.touched && passwordControl.invalid) {
+            <div class="form-error">
+              @if (passwordControl.errors?.['required']) {
+                <span>Password is required.</span>
+              }
+            </div>
+          }
+        </div>
+
+        @if (submitError()) {
+          <div class="submit-error">
+            {{ submitError() }}
+          </div>
+        }
+
+        <button class="btn-primary auth-submit" type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Signing in...' : 'Login' }}
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        Don't have an account?
+        <a routerLink="/register">Create one</a>
+      </p>
+    </section>
+  </div>
 </section>
