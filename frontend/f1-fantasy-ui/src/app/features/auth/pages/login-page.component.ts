@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthStateService } from '../services/auth-state.service';
 import { Router, RouterLink } from '@angular/router';
+import { AuthStateService } from '../services/auth-state.service';
+import { getApiErrorMessage } from '../../../shared/utils/api-error.utils';
 
 @Component({
   selector: 'app-login-page',
@@ -23,7 +24,7 @@ export class LoginPageComponent {
     password: ['', [Validators.required]]
   });
 
-  submit() : void {
+  submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -37,9 +38,9 @@ export class LoginPageComponent {
         this.isSubmitting.set(false);
         this.router.navigate(['/dashboard']);
       },
-      error: () => {
+      error: (error) => {
         this.isSubmitting.set(false);
-        this.submitError.set('Login failed. Invalid email and password.')
+        this.submitError.set(getApiErrorMessage(error, '') || null);
       }
     });
   }
@@ -51,5 +52,4 @@ export class LoginPageComponent {
   get passwordControl() {
     return this.form.controls.password;
   }
-
 }
