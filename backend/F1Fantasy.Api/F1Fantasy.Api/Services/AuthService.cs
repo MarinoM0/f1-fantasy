@@ -25,12 +25,17 @@ namespace F1Fantasy.Api.Services
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
-            var email = request.Email.Trim().ToLowerInvariant();
-            var username = request.Username.Trim();
+            var email = request.Email?.Trim().ToLowerInvariant();
+            var username = request.Username?.Trim();
 
             if (string.IsNullOrWhiteSpace(email))
             {
                 throw new ArgumentException("Email is required.");
+            }
+
+            if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email))
+            {
+                throw new ArgumentException("Enter a valid email address.");
             }
 
             if (string.IsNullOrWhiteSpace(username))
@@ -38,10 +43,22 @@ namespace F1Fantasy.Api.Services
                 throw new ArgumentException("Username is required.");
             }
 
+            if (username.Length < 3)
+            {
+                throw new ArgumentException("Username must be at least 3 characters.");
+            }
+
+            if (username.Length > 20)
+            {
+                throw new ArgumentException("Username must be at most 20 characters.");
+            }
+
             if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
             {
                 throw new ArgumentException("Password must be at least 6 characters long.");
             }
+
+            var normalizedUsername = username.ToLowerInvariant();
 
             var emailExists = await _dbContext.Users.AnyAsync(x => x.Email == email);
             if (emailExists)
@@ -49,7 +66,7 @@ namespace F1Fantasy.Api.Services
                 throw new InvalidOperationException("Email is already in use.");
             }
 
-            var usernameExists = await _dbContext.Users.AnyAsync(x => x.Username == username);
+            var usernameExists = await _dbContext.Users.AnyAsync(x => x.Username.ToLower() == normalizedUsername);
             if (usernameExists)
             {
                 throw new InvalidOperationException("Username is already in use.");
@@ -78,9 +95,25 @@ namespace F1Fantasy.Api.Services
                 }
             };
         }
+
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
-            var email = request.Email.Trim().ToLowerInvariant();
+            var email = request.Email?.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("Email is required.");
+            }
+
+            if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email))
+            {
+                throw new ArgumentException("Enter a valid email address.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                throw new ArgumentException("Password is required.");
+            }
 
             var user = await _dbContext.Users
                 .AsNoTracking()
@@ -113,6 +146,7 @@ namespace F1Fantasy.Api.Services
                 }
             };
         }
+
 
         public async Task<UserDto?> GetCurrentUserAsync (int userId)
         {
