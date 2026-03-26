@@ -5,6 +5,7 @@ import { RegisterPageComponent } from './features/auth/pages/register-page.compo
 import { DashboardPageComponent } from './features/dashboard/pages/dashboard-page.component';
 import { TeamBuilderPageComponent } from './features/fantasy-team/pages/team-builder-page.component';
 import { MyTeamPageComponent } from './features/fantasy-team/pages/my-team-page.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -14,7 +15,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', component: DashboardPageComponent },
       { path: 'team-builder', component: TeamBuilderPageComponent },
-      { path: 'my-team', component: MyTeamPageComponent },
+      { path: 'my-team', component: MyTeamPageComponent, canActivate: [authGuard] },
       { path: 'login', component: LoginPageComponent },
       { path: 'register', component: RegisterPageComponent }
     ]
