@@ -1,33 +1,33 @@
-<section class="auth-shell">
-  <div class="auth-backdrop" aria-hidden="true">
-    <div class="speed-streak speed-streak-one"></div>
-    <div class="speed-streak speed-streak-two"></div>
-    <div class="track-line track-line-one"></div>
-    <div class="track-line track-line-two"></div>
-    <div class="grid-pattern"></div>
+<section class="auth">
+  <div class="auth__backdrop" aria-hidden="true">
+    <div class="auth__streak auth__streak--primary"></div>
+    <div class="auth__streak auth__streak--soft"></div>
+    <div class="auth__ring auth__ring--left"></div>
+    <div class="auth__ring auth__ring--right"></div>
+    <div class="auth__grid"></div>
   </div>
 
-  <div class="auth-layout">
-    <div class="auth-copy">
-      <p class="auth-eyebrow">F1 Fantasy League</p>
-      <h1 class="auth-hero-title">Start your season.</h1>
-      <p class="auth-hero-text">
+  <div class="auth__layout">
+    <div class="auth__content">
+      <p class="auth__eyebrow">F1 Fantasy League</p>
+      <h1 class="auth__title">Start your season.</h1>
+      <p class="auth__text">
         Create your account, build your team identity, and get ready to chase every point across the calendar.
       </p>
     </div>
 
-    <section class="page-card auth-page">
-      <p class="auth-kicker">New to the grid</p>
+    <section class="page-card auth__card">
+      <p class="auth__kicker">New to the grid</p>
       <h2 class="page-title">Create account</h2>
       <p class="page-subtitle">Join F1 Fantasy and set up your team profile.</p>
 
-      <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
-        <div class="form-field">
+      <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="auth__field">
           <label for="email">Email</label>
           <input id="email" type="email" formControlName="email" placeholder="Enter your email" />
 
           @if (emailControl.touched && emailControl.invalid) {
-            <div class="form-error">
+            <div class="auth__error">
               @if (emailControl.errors?.['required']) {
                 <span>Email is required.</span>
               }
@@ -38,12 +38,12 @@
           }
         </div>
 
-        <div class="form-field">
+        <div class="auth__field">
           <label for="username">Username</label>
           <input id="username" type="text" formControlName="username" placeholder="Choose a username" />
 
           @if (usernameControl.touched && usernameControl.invalid) {
-            <div class="form-error">
+            <div class="auth__error">
               @if (usernameControl.errors?.['required']) {
                 <span>Username is required.</span>
               }
@@ -57,12 +57,12 @@
           }
         </div>
 
-        <div class="form-field">
+        <div class="auth__field">
           <label for="password">Password</label>
           <input id="password" type="password" formControlName="password" placeholder="Create a password" />
 
           @if (passwordControl.touched && passwordControl.invalid) {
-            <div class="form-error">
+            <div class="auth__error">
               @if (passwordControl.errors?.['required']) {
                 <span>Password is required.</span>
               }
@@ -74,17 +74,17 @@
         </div>
 
         @if (submitError()) {
-          <div class="submit-error">
+          <div class="auth__submit-error">
             {{ submitError() }}
           </div>
         }
 
-        <button class="btn-primary auth-submit" type="submit" [disabled]="isSubmitting()">
+        <button class="btn-primary auth__submit" type="submit" [disabled]="isSubmitting()">
           {{ isSubmitting() ? 'Creating account...' : 'Register' }}
         </button>
       </form>
 
-      <p class="auth-footer">
+      <p class="auth__footer">
         Already have an account?
         <a routerLink="/login">Login</a>
       </p>

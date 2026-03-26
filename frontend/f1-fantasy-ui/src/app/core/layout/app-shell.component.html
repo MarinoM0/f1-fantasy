@@ -2,18 +2,37 @@
     <header class="shell__header" [class.shell__header--auth]="isAuthRoute()">
         <div class="shell__brand">
             <img src="assets/images/f1-logo.svg" alt="F1 Fantasy logo" class="shell__logo" />
-            <a routerLink="/dashboard">Fantasy</a>
+            <a routerLink="/dashboard" (click)="closeNav()">Fantasy</a>
         </div>
 
-        <nav class="shell__nav">
-            <div class="shell__nav-main">
-                <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-                <a routerLink="/team-builder" routerLinkActive="active">Team Builder</a>
-                <a routerLink="/my-team" routerLinkActive="active">My Team</a>
+        <button
+            class="shell__menu-toggle"
+            type="button"
+            [attr.aria-expanded]="isNavOpen()"
+            aria-label="Toggle navigation"
+            (click)="toggleNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav class="shell__nav" [class.shell__nav--open]="isNavOpen()">
+            <div class="shell__nav-group shell__nav-group--main">
+                <a class="shell__nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeNav()">Dashboard</a>
+                <a class="shell__nav-link" routerLink="/team-builder" routerLinkActive="active" (click)="closeNav()">Team Builder</a>
+                <a class="shell__nav-link" routerLink="/my-team" routerLinkActive="active" (click)="closeNav()">My Team</a>
             </div>
-            <div class="shell__nav-auth">
-                <a routerLink="/login" routerLinkActive="active">Login</a>
-                <a routerLink="/register" routerLinkActive="active">Register</a>
+            <div class="shell__nav-group shell__nav-group--auth">
+                <a
+                    class="shell__nav-link shell__nav-link--muted"
+                    routerLink="/login"
+                    routerLinkActive="active"
+                    (click)="closeNav()">Login</a>
+                <a
+                    class="shell__nav-link shell__nav-link--cta"
+                    routerLink="/register"
+                    routerLinkActive="active"
+                    (click)="closeNav()">Register</a>
             </div>
         </nav>
     </header>

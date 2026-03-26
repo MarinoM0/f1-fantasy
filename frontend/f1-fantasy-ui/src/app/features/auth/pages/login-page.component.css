@@ -3,30 +3,27 @@
   min-height: 100vh;
 }
 
-.auth-shell {
+.auth {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(225, 6, 0, 0.26), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.1), transparent 18%),
-    linear-gradient(135deg, #090909 0%, #13151a 42%, #0b0c10 100%);
+  background: var(--gradient-auth-bg);
 }
 
-.auth-backdrop {
+.auth__backdrop {
   position: absolute;
   inset: 0;
   overflow: hidden;
 }
 
-.speed-streak,
-.track-line,
-.grid-pattern {
+.auth__streak,
+.auth__ring,
+.auth__grid {
   position: absolute;
   pointer-events: none;
 }
 
-.speed-streak {
+.auth__streak {
   height: 10rem;
   border-radius: 999px;
   filter: blur(18px);
@@ -34,49 +31,49 @@
   transform: rotate(-18deg);
 }
 
-.speed-streak-one {
+.auth__streak--primary {
   top: 10%;
   right: -8%;
   width: 40rem;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(225, 6, 0, 0.75), rgba(255, 255, 255, 0));
+  background: var(--gradient-speed-red);
 }
 
-.speed-streak-two {
+.auth__streak--soft {
   bottom: 12%;
   left: -10%;
   width: 34rem;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+  background: var(--gradient-speed-white);
 }
 
-.track-line {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.auth__ring {
+  border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 999px;
 }
 
-.track-line-one {
+.auth__ring--left {
   top: 22%;
   left: 8%;
   width: 28rem;
   height: 28rem;
 }
 
-.track-line-two {
+.auth__ring--right {
   right: 6%;
   bottom: -6rem;
   width: 36rem;
   height: 20rem;
 }
 
-.grid-pattern {
+.auth__grid {
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
   background-size: 4rem 4rem;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), transparent 85%);
+  mask-image: linear-gradient(180deg, rgb(0 0 0 / 80%), transparent 85%);
 }
 
-.auth-layout {
+.auth__layout {
   position: relative;
   z-index: 1;
   min-height: 100vh;
@@ -89,22 +86,22 @@
   align-items: center;
 }
 
-.auth-copy {
+.auth__content {
   max-width: 34rem;
-  color: #f5f7fb;
+  color: var(--color-text);
 }
 
-.auth-eyebrow,
-.auth-kicker {
+.auth__eyebrow,
+.auth__kicker {
   margin-bottom: 0.75rem;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #ff756f;
+  color: var(--color-primary-soft);
 }
 
-.auth-hero-title {
+.auth__title {
   margin-bottom: 1rem;
   font-size: clamp(2.75rem, 5vw, 5rem);
   line-height: 0.95;
@@ -112,23 +109,21 @@
   text-transform: uppercase;
 }
 
-.auth-hero-text {
+.auth__text {
   margin: 0;
   max-width: 28rem;
   font-size: 1.05rem;
   line-height: 1.7;
-  color: rgba(245, 247, 251, 0.78);
+  color: rgb(245 247 251 / 78%);
 }
 
-.auth-page {
+.auth__card {
   width: min(100%, 460px);
   margin-left: auto;
   padding: 2rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  background: var(--gradient-auth-surface);
+  border: 1px solid rgb(255 255 255 / 18%);
+  box-shadow: var(--shadow-auth-card);
   backdrop-filter: blur(16px);
 }
 
@@ -138,56 +133,56 @@
 }
 
 .page-subtitle {
-  color: rgba(245, 247, 251, 0.74);
+  color: rgb(245 247 251 / 74%);
 }
 
-.auth-form {
+.auth__form {
   display: grid;
   gap: 1rem;
   margin-top: 1.75rem;
 }
 
-.form-field {
+.auth__field {
   display: grid;
   gap: 0.5rem;
 }
 
-.form-field label {
+.auth__field label {
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #f6f8fc;
 }
 
-.form-field input {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  color: #101217;
-  box-shadow: inset 0 1px 2px rgba(16, 18, 23, 0.08);
+.auth__field input {
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid rgb(255 255 255 / 92%);
+  color: var(--color-surface-alt);
+  box-shadow: inset 0 1px 2px rgb(16 18 23 / 8%);
 }
 
-.form-field input::placeholder {
-  color: rgba(16, 18, 23, 0.45);
+.auth__field input::placeholder {
+  color: rgb(16 18 23 / 45%);
 }
 
-.form-field input:focus {
-  outline: 2px solid rgba(255, 117, 111, 0.35);
-  border-color: rgba(255, 117, 111, 0.95);
+.auth__field input:focus {
+  outline: 2px solid rgb(255 117 111 / 35%);
+  border-color: rgb(255 117 111 / 95%);
 }
 
-.form-error {
+.auth__error {
   font-size: 0.9rem;
-  color: #ffd4d2;
+  color: var(--color-danger-soft);
 }
 
-.submit-error {
+.auth__submit-error {
   padding: 0.8rem 0.9rem;
-  border: 1px solid rgba(255, 167, 163, 0.4);
+  border: 1px solid rgb(255 167 163 / 40%);
   border-radius: var(--radius-md);
-  background: rgba(92, 16, 13, 0.4);
+  background: rgb(92 16 13 / 40%);
   color: #ffe1df;
 }
 
-.auth-submit {
+.auth__submit {
   width: 100%;
   margin-top: 0.35rem;
   min-height: 3.25rem;
@@ -195,65 +190,63 @@
   text-transform: uppercase;
 }
 
-.auth-submit:disabled {
+.auth__submit:disabled {
   opacity: 0.72;
   cursor: not-allowed;
 }
 
-.auth-footer {
+.auth__footer {
   margin-top: 1.5rem;
-  color: rgba(245, 247, 251, 0.72);
+  color: rgb(245 247 251 / 72%);
 }
 
-.auth-footer a {
+.auth__footer a {
   color: #ffffff;
   text-decoration: none;
   font-weight: 700;
 }
 
-.auth-footer a:hover {
+.auth__footer a:hover {
   text-decoration: underline;
 }
 
 @media (max-width: 900px) {
-  .auth-layout {
+  .auth__layout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 2rem 1rem;
   }
 
-  .auth-copy {
+  .auth__content {
     max-width: none;
   }
 
-  .auth-page {
+  .auth__card {
     margin: 0;
     width: 100%;
   }
 
-  .auth-hero-title {
+  .auth__title {
     font-size: clamp(2.4rem, 12vw, 3.8rem);
   }
 }
 
 @media (max-width: 640px) {
-  .auth-shell {
-    background:
-      radial-gradient(circle at top left, rgba(225, 6, 0, 0.22), transparent 34%),
-      linear-gradient(160deg, #090909 0%, #13151a 55%, #0b0c10 100%);
+  .auth {
+    background: var(--gradient-auth-bg-mobile);
   }
 
-  .track-line-one,
-  .track-line-two,
-  .speed-streak-two {
+  .auth__ring--left,
+  .auth__ring--right,
+  .auth__streak--soft {
     display: none;
   }
 
-  .auth-page {
+  .auth__card {
     padding: 1.5rem;
   }
 
-  .auth-hero-text {
+  .auth__text {
     font-size: 1rem;
     line-height: 1.6;
   }

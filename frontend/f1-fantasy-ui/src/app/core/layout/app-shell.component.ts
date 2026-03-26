@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
 
@@ -11,8 +11,17 @@ import { Router } from '@angular/router';
 })
 export class AppShellComponent {
   private readonly router = inject(Router);
+  readonly isNavOpen = signal(false);
 
   isAuthRoute(): boolean {
     return this.router.url === '/login' || this.router.url === '/register';
+  }
+
+  toggleNav(): void {
+    this.isNavOpen.update((value) => !value);
+  }
+
+  closeNav(): void {
+    this.isNavOpen.set(false);
   }
 }
