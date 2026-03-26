@@ -20,20 +20,29 @@
             <div class="shell__nav-group shell__nav-group--main">
                 <a class="shell__nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeNav()">Dashboard</a>
                 <a class="shell__nav-link" routerLink="/team-builder" routerLinkActive="active" (click)="closeNav()">Team Builder</a>
-                <a class="shell__nav-link" routerLink="/my-team" routerLinkActive="active" (click)="closeNav()">My Team</a>
+                @if (isAuthenticated()) {
+                    <a class="shell__nav-link" routerLink="/my-team" routerLinkActive="active" (click)="closeNav()">My Team</a>
+                }
             </div>
-            <div class="shell__nav-group shell__nav-group--auth">
-                <a
-                    class="shell__nav-link shell__nav-link--muted"
-                    routerLink="/login"
-                    routerLinkActive="active"
-                    (click)="closeNav()">Login</a>
-                <a
-                    class="shell__nav-link shell__nav-link--cta"
-                    routerLink="/register"
-                    routerLinkActive="active"
-                    (click)="closeNav()">Register</a>
-            </div>
+            @if (!isAuthenticated()) {
+                <div class="shell__nav-group shell__nav-group--auth">
+                    <a
+                        class="shell__nav-link shell__nav-link--muted"
+                        routerLink="/login"
+                        routerLinkActive="active"
+                        (click)="closeNav()">Login</a>
+                    <a
+                        class="shell__nav-link shell__nav-link--cta"
+                        routerLink="/register"
+                        routerLinkActive="active"
+                        (click)="closeNav()">Register</a>
+                </div>
+            } @else {
+                <div class="shell__nav-group shell__nav-group--user">
+                    <span class="shell__user-name">{{ currentUser()?.username }}</span>
+                    <button class="shell__nav-button" type="button" (click)="logout(); closeNav()">Logout</button>
+                </div>
+            }
         </nav>
     </header>
 

@@ -55,6 +55,11 @@ export class AuthStateService {
         );
     }
 
+    logout(): void {
+        this.clearAuthState();
+        this.initializedSignal.set(true);
+    }
+
     private getStoredToken(): string | null {
         return this.storage.getItem(AUTH_TOKEN_STORAGE_KEY);
     }

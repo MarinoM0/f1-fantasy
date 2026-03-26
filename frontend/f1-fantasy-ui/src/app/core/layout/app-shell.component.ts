@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
+import { AuthStateService } from '../../features/auth/services/auth-state.service';
 
 @Component({
   selector: 'app-shell',
@@ -12,6 +13,15 @@ import { Router } from '@angular/router';
 export class AppShellComponent {
   private readonly router = inject(Router);
   readonly isNavOpen = signal(false);
+  private readonly authState = inject(AuthStateService);
+
+  readonly currentUser = this.authState.currentUser;
+  readonly isAuthenticated = this.authState.isAuthenticated;
+
+  logout(): void {
+    this.authState.logout();
+    this.router.navigate(['/dashboard'])
+  }
 
   isAuthRoute(): boolean {
     return this.router.url === '/login' || this.router.url === '/register';
