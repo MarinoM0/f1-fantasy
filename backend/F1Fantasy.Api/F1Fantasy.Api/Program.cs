@@ -1,5 +1,6 @@
 using System.Text;
 using F1Fantasy.Api.Auth;
+using F1Fantasy.Api.Configuration;
 using F1Fantasy.Api.Data;
 using F1Fantasy.Api.Interfaces;
 using F1Fantasy.Api.Middleware;
@@ -25,9 +26,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(JwtSettings.SectionName));
 
+builder.Services.Configure<JolpicaOptions>(
+    builder.Configuration.GetSection(JolpicaOptions.SectionName));
+
 var jwtSettings = builder.Configuration
     .GetSection(JwtSettings.SectionName)
     .Get<JwtSettings>() ?? throw new InvalidOperationException("JWT settings are not configured.");
+
+var jolpicaOptions = builder.Configuration
+    .GetSection(JolpicaOptions.SectionName)
+    .Get<JolpicaOptions>() ?? new JolpicaOptions();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -66,6 +74,12 @@ builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<ConstructorService>();
 builder.Services.AddScoped<RaceService>();
 builder.Services.AddScoped<IFantasyTeamService, FantasyTeamService>();
+
+builder.Services.AddHttpClient<IJolpicaService, JolpicaService>(client =>
+{
+    client.BaseAddress = new Uri(jolpicaOptions.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 var app = builder.Build();
 
