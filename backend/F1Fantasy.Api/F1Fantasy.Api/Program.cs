@@ -74,6 +74,7 @@ builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<ConstructorService>();
 builder.Services.AddScoped<RaceService>();
 builder.Services.AddScoped<IFantasyTeamService, FantasyTeamService>();
+builder.Services.AddScoped<TeamBuilderService>();
 
 builder.Services.AddHttpClient<IJolpicaService, JolpicaService>(client =>
 {
