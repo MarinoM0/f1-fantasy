@@ -1,5 +1,6 @@
 ﻿using F1Fantasy.Api.DTOs;
 using F1Fantasy.Api.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,11 +9,12 @@ namespace F1Fantasy.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class FantasyTeamController : ControllerBase
     {
         private readonly IFantasyTeamService _fantasyTeamService;
 
-        public FantasyTeamController (IFantasyTeamService fantasyTeamService)
+        public FantasyTeamController(IFantasyTeamService fantasyTeamService)
         {
             _fantasyTeamService = fantasyTeamService;
         }
@@ -23,6 +25,16 @@ namespace F1Fantasy.Api.Controllers
         {
             var userId = GetUserId();
             var team = await _fantasyTeamService.CreateAsync(userId, request);
+            return Ok(team);
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(FantasyTeamDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FantasyTeamDto>> Update(CreateFantasyTeamRequestDto request)
+        {
+            var userId = GetUserId();
+            var team = await _fantasyTeamService.UpdateAsync(userId, request);
             return Ok(team);
         }
 

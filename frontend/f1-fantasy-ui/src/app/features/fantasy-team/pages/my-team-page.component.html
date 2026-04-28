@@ -1,4 +1,109 @@
-<section class="page-card">
-  <h1 class="page-title">My Team</h1>
-  <p class="page-subtitle">Your saved fantasy team will be shown here</p>
+<section class="my-team-shell">
+  @if (isLoading()) {
+    <section class="state-panel">
+      <p class="state-panel__eyebrow">Garage sync</p>
+      <h1>Loading your team...</h1>
+      <span class="state-panel__bar"></span>
+    </section>
+  } @else if (team(); as savedTeam) {
+    <header
+      class="team-hero"
+      [style.--accent-color]="primaryTeamColor()"
+      [style.--budget-usage]="budgetUsagePercent() + '%'">
+      <div class="team-hero__copy">
+        <p class="eyebrow">Locked lineup</p>
+        <h1>{{ savedTeam.name }}</h1>
+        <p class="team-hero__manager">Managed by {{ savedTeam.username }}</p>
+      </div>
+
+      <div class="team-hero__budget">
+        <div class="budget-gauge" aria-label="Budget used">
+          <div class="budget-gauge__inner">
+            <span>Spent</span>
+            <strong>${{ spentBudget() | number: '1.0-1' }}M</strong>
+          </div>
+        </div>
+
+        <div class="budget-meta">
+          <span>${{ savedTeam.remainingBudget | number: '1.0-1' }}M remaining</span>
+          <strong>${{ savedTeam.budgetCap | number: '1.0-1' }}M cap</strong>
+        </div>
+      </div>
+
+      <a class="team-hero__action" routerLink="/team-builder">Tune lineup</a>
+    </header>
+
+    <div class="garage-layout">
+      <section class="lineup-panel lineup-panel--drivers">
+        <div class="lineup-panel__header">
+          <div>
+            <p class="eyebrow">Race seats</p>
+            <h2>Drivers</h2>
+          </div>
+          <span>{{ driverCount() }} selected</span>
+        </div>
+
+        <div class="driver-grid">
+          @for (driver of savedTeam.drivers; track driver.id) {
+            <article class="driver-card" [style.--team-color]="getDriverColor(driver)">
+              <div class="driver-card__code">{{ driver.code }}</div>
+              <div class="driver-card__body">
+                <span>{{ driver.constructorCode }}</span>
+                <strong>{{ driver.fullName }}</strong>
+                <p>{{ driver.constructorName }}</p>
+              </div>
+              <div class="driver-card__price">${{ driver.price | number: '1.0-1' }}M</div>
+            </article>
+          }
+
+          @for (slot of driverSlots(); track $index) {
+            <article class="empty-card">
+              <span>Open seat</span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="lineup-panel">
+          <div class="lineup-panel__header">
+            <div>
+              <p class="eyebrow">Pit wall</p>
+              <h2>Constructors</h2>
+            </div>
+            <span>{{ constructorCount() }} selected</span>
+          </div>
+
+          <div class="constructor-list">
+            @for (constructor of savedTeam.constructors; track constructor.id) {
+              <article
+                class="constructor-card"
+                [style.--team-color]="getConstructorColor(constructor)">
+                <span class="constructor-card__stripe"></span>
+                <div>
+                  <strong>{{ constructor.name }}</strong>
+                  <p>{{ constructor.code }}</p>
+                </div>
+                <span class="constructor-card__price">
+                  ${{ constructor.price | number: '1.0-1' }}M
+                </span>
+              </article>
+            }
+
+            @for (slot of constructorSlots(); track $index) {
+              <article class="empty-card empty-card--compact">
+                <span>Open constructor</span>
+              </article>
+            }
+          </div>
+        </section>
+      </aside>
+    </div>
+  } @else {
+    <section class="state-panel state-panel--empty">
+      <p class="state-panel__eyebrow">No team saved</p>
+      <h1>{{ errorMessage() }}</h1>
+      <a class="state-panel__action" routerLink="/team-builder">Build your lineup</a>
+    </section>
+  }
 </section>

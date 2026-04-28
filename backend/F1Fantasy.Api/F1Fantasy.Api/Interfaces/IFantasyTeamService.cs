@@ -5,6 +5,7 @@ namespace F1Fantasy.Api.Interfaces
     public interface IFantasyTeamService
     {
         Task<FantasyTeamDto> CreateAsync(int userId, CreateFantasyTeamRequestDto request);
+        Task<FantasyTeamDto> UpdateAsync(int userId, CreateFantasyTeamRequestDto request);
         Task<FantasyTeamDto?> GetMyTeamAsync(int userId);
     }
 }

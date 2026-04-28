@@ -1,4 +1,230 @@
-<section class="page-card">
-  <h1 class="page-title">Team Builder</h1>
-  <p class="page-subtitle">Select 2 constructors and 5 drivers here</p>
+<section class="builder-shell">
+  <header class="builder-topbar">
+    <div>
+      <p class="eyebrow">Fantasy lineup</p>
+      <h1 class="page-title">Team Builder</h1>
+    </div>
+
+    <div class="budget-pill">
+      <span class="budget-pill__label">Budget</span>
+      <strong class="budget-pill__value">${{ remainingBudget() | number: '1.0-1' }}M</strong>
+      <span class="budget-pill__cap">/ ${{ totalBudget() | number: '1.0-1' }}M</span>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <section class="state-panel">
+      <p class="state-text">Loading team builder data...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel state-panel--error">
+      <p class="state-text state-text--error">{{ errorMessage() }}</p>
+    </section>
+  } @else {
+    <div class="builder-layout">
+      <aside class="team-board">
+        <div class="team-board__header">
+          <div>
+            <p class="section-label">Current team</p>
+            <h2>Your selected lineup</h2>
+          </div>
+
+          <div class="team-board__summary">
+            <span>{{ selectedDriverCount() }}/5 drivers</span>
+            <span>{{ selectedConstructorCount() }}/2 constructors</span>
+          </div>
+        </div>
+
+        <div class="team-board__content">
+          <section class="team-section">
+            <div class="team-section__header">
+              <h3>Drivers</h3>
+              <span>{{ selectedDriverCount() }} selected</span>
+            </div>
+
+            <div class="driver-cards">
+              @for (driver of selectedDrivers(); track driver.id) {
+                <article
+                  class="picked-card picked-card--driver"
+                  [style.--team-color]="getDriverColor(driver)">
+                  <div class="picked-card__code">{{ driver.code }}</div>
+                  <div class="picked-card__body">
+                    <strong>{{ driver.fullName }}</strong>
+                    <p>{{ driver.constructorName }}</p>
+                    <span>${{ driver.price | number: '1.0-1' }}M</span>
+                  </div>
+                </article>
+              }
+
+              @for (slot of [0, 1, 2, 3, 4].slice(selectedDriverCount()); track $index) {
+                <article class="picked-card picked-card--empty">
+                  <span>Add driver</span>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="team-section">
+            <div class="team-section__header">
+              <h3>Constructors</h3>
+              <span>{{ selectedConstructorCount() }} selected</span>
+            </div>
+
+            <div class="constructor-cards">
+              @for (teamConstructor of selectedConstructors(); track teamConstructor.id) {
+                <article
+                  class="picked-card picked-card--constructor"
+                  [style.--team-color]="getConstructorColor(teamConstructor)">
+                  <div class="picked-card__stripe"></div>
+                  <div class="picked-card__body">
+                    <strong>{{ teamConstructor.name }}</strong>
+                    <p>{{ teamConstructor.code }}</p>
+                    <span>${{ teamConstructor.price | number: '1.0-1' }}M</span>
+                  </div>
+                </article>
+              }
+
+              @for (slot of [0, 1].slice(selectedConstructorCount()); track $index) {
+                <article class="picked-card picked-card--empty picked-card--constructor-empty">
+                  <span>Add constructor</span>
+                </article>
+              }
+            </div>
+          </section>
+        </div>
+
+        <div class="team-board__bottom">
+          <footer class="team-board__footer">
+            <div class="metric-box">
+              <strong>{{ selectedDriverCount() }}/5</strong>
+              <span>Drivers</span>
+            </div>
+
+            <div class="metric-box">
+              <strong>{{ selectedConstructorCount() }}/2</strong>
+              <span>Constructors</span>
+            </div>
+
+            <div class="metric-box metric-box--success">
+              <strong>${{ spentBudget() | number: '1.0-1' }}M</strong>
+              <span>Spent</span>
+            </div>
+          </footer>
+
+          <button
+            type="button"
+            class="team-board__create-button"
+            [disabled]="!canCreateTeam()"
+            (click)="createTeam()">
+            {{ createTeamButtonLabel() }}
+          </button>
+
+          @if (creationErrorMessage()) {
+            <p class="team-board__create-error">{{ creationErrorMessage() }}</p>
+          }
+        </div>
+      </aside>
+
+      <section class="selector-panel">
+        <header class="selector-panel__header">
+          <div class="selector-tabs">
+            <button
+              type="button"
+              class="selector-tab"
+              [class.selector-tab--active]="activeTab() === 'drivers'"
+              (click)="setActiveTab('drivers')">
+              Drivers
+            </button>
+
+            <button
+              type="button"
+              class="selector-tab"
+              [class.selector-tab--active]="activeTab() === 'constructors'"
+              (click)="setActiveTab('constructors')">
+              Constructors
+            </button>
+          </div>
+
+          <span class="selector-count">{{ visibleResultCount() }} shown</span>
+        </header>
+
+        <div class="selector-search">
+          <input
+            type="text"
+            class="selector-search__input"
+            [value]="searchTerm()"
+            [placeholder]="activeTab() === 'drivers' ? 'Search drivers...' : 'Search constructors...'"
+            (input)="setSearchTerm($any($event.target).value)" />
+        </div>
+
+        @if (activeTab() === 'drivers') {
+          <div class="selector-list">
+            @for (driver of filteredDrivers(); track driver.id) {
+              <article
+                class="selector-row"
+                [style.--team-color]="getDriverColor(driver)"
+                [class.selector-row--selected]="isDriverSelected(driver.id)"
+                [class.selector-row--disabled]="!isDriverSelected(driver.id) && !canSelectDriver(driver)">
+                <div class="selector-row__rank">{{ driver.standingPosition ?? '-' }}</div>
+
+                <div class="selector-row__main">
+                  <div class="selector-row__identity">
+                    <h3>{{ driver.fullName }}</h3>
+                    <p>{{ driver.constructorName }}</p>
+                  </div>
+
+                  <div class="selector-row__stats">
+                    <strong>${{ driver.price | number: '1.0-1' }}M</strong>
+                    <span>{{ driver.currentPoints }} pts</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="selector-action"
+                    [class.selector-action--selected]="isDriverSelected(driver.id)"
+                    [disabled]="!isDriverSelected(driver.id) && !canSelectDriver(driver)"
+                    (click)="toggleDriver(driver)">
+                    {{ isDriverSelected(driver.id) ? 'Remove' : 'Add' }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="selector-list">
+            @for (teamConstructor of filteredConstructors(); track teamConstructor.id) {
+              <article
+                class="selector-row"
+                [style.--team-color]="getConstructorColor(teamConstructor)"
+                [class.selector-row--selected]="isConstructorSelected(teamConstructor.id)"
+                [class.selector-row--disabled]="!isConstructorSelected(teamConstructor.id) && !canSelectConstructor(teamConstructor)">
+                <div class="selector-row__rank">{{ teamConstructor.standingPosition ?? '-' }}</div>
+
+                <div class="selector-row__main">
+                  <div class="selector-row__identity">
+                    <h3>{{ teamConstructor.name }}</h3>
+                    <p>{{ teamConstructor.code }}</p>
+                  </div>
+
+                  <div class="selector-row__stats">
+                    <strong>${{ teamConstructor.price | number: '1.0-1' }}M</strong>
+                    <span>{{ teamConstructor.currentPoints }} pts</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="selector-action"
+                    [class.selector-action--selected]="isConstructorSelected(teamConstructor.id)"
+                    [disabled]="!isConstructorSelected(teamConstructor.id) && !canSelectConstructor(teamConstructor)"
+                    (click)="toggleConstructor(teamConstructor)">
+                    {{ isConstructorSelected(teamConstructor.id) ? 'Remove' : 'Add' }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
 </section>
