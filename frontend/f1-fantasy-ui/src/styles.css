@@ -136,3 +136,9 @@ button {
   background: var(--color-primary-hover);
   transform: translateY(-1px);
 }
+
+app-team-builder-page,
+app-my-team-page {
+  display: block;
+  min-height: calc(100vh - 8.9rem);
+}

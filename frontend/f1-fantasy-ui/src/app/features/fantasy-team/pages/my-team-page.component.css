@@ -29,17 +29,15 @@
 .state-panel {
   border: 1px solid var(--border);
   border-radius: 24px;
-  background:
-    linear-gradient(135deg, rgb(255 255 255 / 6%), transparent 32%),
-    linear-gradient(180deg, var(--panel), var(--panel-deep));
+  background: var(--panel-deep);
 }
 
 .team-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  align-items: stretch;
+  gap: 1rem;
   min-height: 10.5rem;
   padding: 1.35rem;
   overflow: hidden;
@@ -50,16 +48,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 45%)),
-    linear-gradient(120deg, color-mix(in srgb, var(--accent-color) 44%, transparent), transparent 42%),
-    linear-gradient(45deg, rgb(255 255 255 / 4%) 25%, transparent 25%),
-    linear-gradient(-45deg, rgb(255 255 255 / 4%) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgb(255 255 255 / 4%) 75%),
-    linear-gradient(-45deg, transparent 75%, rgb(255 255 255 / 4%) 75%);
-  background-size: auto, auto, 34px 34px, 34px 34px, 34px 34px, 34px 34px;
-  background-position: 0 0, 0 0, 0 0, 0 17px, 17px -17px, -17px 0;
-  opacity: 0.95;
+  border-left: 0.35rem solid var(--accent-color);
+  background: rgb(255 255 255 / 3%);
 }
 
 .team-hero > *,
@@ -68,10 +58,17 @@
   z-index: 1;
 }
 
+.team-hero__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .eyebrow,
 .state-panel__eyebrow,
-.team-hero__manager,
 .budget-meta span,
+.score-card__label,
+.wins-panel__item span,
 .lineup-panel__header span,
 .driver-card__body span,
 .driver-card__body p,
@@ -105,47 +102,29 @@
   text-transform: uppercase;
 }
 
-.team-hero__manager {
-  margin: 0.8rem 0 0;
-  font-size: 0.95rem;
-}
-
 .team-hero__budget {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  min-width: 18rem;
-  padding: 0.85rem;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 22px;
-  background: rgb(10 10 18 / 72%);
-  backdrop-filter: blur(12px);
-}
-
-.budget-gauge {
-  width: 7.25rem;
-  aspect-ratio: 1;
   display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background:
-    conic-gradient(var(--accent) var(--budget-usage), #2a2a40 0),
-    linear-gradient(180deg, #232337, #141420);
-  box-shadow: 0 18px 38px rgb(0 0 0 / 24%);
+  gap: 0.45rem;
+  width: min(100%, 24rem);
+  margin-top: auto;
+  padding-top: 1.9rem;
 }
 
-.budget-gauge__inner {
-  width: 5.4rem;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  border-radius: 50%;
-  background: #10101a;
-  text-align: center;
+.budget-line {
+  height: 0.42rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #2a2a40;
 }
 
-.budget-gauge__inner span,
+.budget-line__fill {
+  display: block;
+  width: var(--budget-usage);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
 .budget-meta span {
   font-size: 0.72rem;
   font-weight: 800;
@@ -153,18 +132,63 @@
   text-transform: uppercase;
 }
 
-.budget-gauge__inner strong {
-  margin-top: 0.2rem;
-  font-size: 1.15rem;
-}
-
 .budget-meta {
-  display: grid;
-  gap: 0.2rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  flex-wrap: wrap;
 }
 
 .budget-meta strong {
-  font-size: 1.4rem;
+  font-size: 0.86rem;
+}
+
+.team-hero__aside {
+  display: grid;
+  gap: 0.55rem;
+  align-content: center;
+}
+
+.score-card {
+  display: grid;
+  gap: 0.62rem;
+  padding: 0.68rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 22px;
+  background: rgb(10 10 18 / 72%);
+}
+
+.score-card__label,
+.wins-panel__item span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.score-card__value {
+  font-size: clamp(2.35rem, 4.8vw, 3.7rem);
+  line-height: 0.88;
+}
+
+.wins-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.38rem;
+  margin-top: 0.45rem;
+}
+
+.wins-panel__item {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 7%);
+}
+
+.wins-panel__item strong {
+  font-size: 1.02rem;
+  line-height: 1;
 }
 
 .team-hero__action,
@@ -176,7 +200,7 @@
   padding: 0.85rem 1rem;
   border: 1px solid transparent;
   border-radius: 18px;
-  background: linear-gradient(135deg, #ff5b2e, var(--accent));
+  background: var(--accent);
   color: #fff8f6;
   font-size: 0.86rem;
   font-weight: 900;
@@ -237,9 +261,7 @@
 .empty-card {
   --team-color: #ffffff;
   border: 1px solid color-mix(in srgb, var(--team-color) 48%, #343451);
-  background:
-    linear-gradient(155deg, color-mix(in srgb, var(--team-color) 18%, transparent), transparent 44%),
-    #181828;
+  background: #181828;
 }
 
 .driver-card {
@@ -285,14 +307,27 @@
   font-size: 0.74rem;
 }
 
-.driver-card__price {
+.driver-card__metrics {
   justify-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.driver-card__metrics span,
+.constructor-card__metrics span {
   padding: 0.55rem 0.7rem;
   border: 1px solid rgb(255 255 255 / 9%);
   border-radius: 999px;
   background: rgb(255 255 255 / 7%);
   font-size: 0.84rem;
   font-weight: 800;
+  line-height: 1;
+}
+
+.driver-card__metrics span:last-child,
+.constructor-card__metrics span:last-child {
+  color: #51e28a;
 }
 
 .constructor-card {
@@ -313,8 +348,10 @@
   background: var(--team-color);
 }
 
-.constructor-card__price {
-  font-weight: 900;
+.constructor-card__metrics {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
 }
 
 .empty-card {
@@ -389,12 +426,7 @@
 
 @media (max-width: 1180px) {
   .team-hero {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .team-hero__action {
-    grid-column: 1 / -1;
-    justify-self: start;
+    grid-template-columns: 1fr;
   }
 
   .garage-layout {
@@ -412,7 +444,7 @@
     max-width: 100%;
   }
 
-  .team-hero__budget {
+  .team-hero__aside {
     min-width: 0;
     width: 100%;
   }
@@ -433,24 +465,16 @@
     border-radius: 20px;
   }
 
-  .team-hero__budget {
-    align-items: start;
-    flex-direction: column;
-  }
-
-  .budget-gauge {
-    width: 6.5rem;
-  }
-
-  .budget-gauge__inner {
-    width: 4.9rem;
+  .wins-panel {
+    grid-template-columns: 1fr;
   }
 
   .constructor-card {
     grid-template-columns: 0.45rem minmax(0, 1fr);
   }
 
-  .constructor-card__price {
+  .constructor-card__metrics {
     grid-column: 2;
+    justify-items: start;
   }
 }

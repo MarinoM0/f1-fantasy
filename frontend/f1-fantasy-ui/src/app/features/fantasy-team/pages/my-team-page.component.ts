@@ -2,31 +2,36 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { catchError, map, of, startWith } from 'rxjs';
+import { catchError, forkJoin, map, of, startWith } from 'rxjs';
 import { getApiErrorMessage } from '../../../shared/utils/api-error.utils';
 import {
   FantasyTeam,
   FantasyTeamConstructor,
   FantasyTeamDriver
 } from '../models/fantasy-team.models';
+import {
+  TeamBuilderConstructor,
+  TeamBuilderDriver
+} from '../models/team-builder.models';
 import { FantasyTeamApiService } from '../services/fantasy-team-api.service';
+import { TeamBuilderApiService } from '../services/team-builder-api.service';
 
-type MyTeamState =
-  | {
-      status: 'loading';
-      team: FantasyTeam | null;
-      errorMessage: string;
-    }
-  | {
-      status: 'loaded';
-      team: FantasyTeam;
-      errorMessage: string;
-    }
-  | {
-      status: 'empty' | 'error';
-      team: FantasyTeam | null;
-      errorMessage: string;
-    };
+type TeamAssetStats = {
+  currentPoints: number;
+  currentWins: number;
+  hasLiveData: boolean;
+  standingPosition: number | null;
+};
+
+type TeamStatsMap = Record<number, TeamAssetStats>;
+
+type MyTeamState = {
+  status: 'loading' | 'loaded' | 'empty' | 'error';
+  team: FantasyTeam | null;
+  errorMessage: string;
+  driverStats: TeamStatsMap;
+  constructorStats: TeamStatsMap;
+};
 
 @Component({
   standalone: true,
@@ -57,13 +62,24 @@ export class MyTeamPageComponent {
   };
 
   private readonly fantasyTeamApiService = inject(FantasyTeamApiService);
+  private readonly teamBuilderApiService = inject(TeamBuilderApiService);
   private readonly teamState = toSignal(
-    this.fantasyTeamApiService.getMyTeam().pipe(
+    forkJoin({
+      team: this.fantasyTeamApiService.getMyTeam(),
+      drivers: this.teamBuilderApiService.getDrivers().pipe(
+        catchError(() => of<TeamBuilderDriver[]>([]))
+      ),
+      constructors: this.teamBuilderApiService.getConstructors().pipe(
+        catchError(() => of<TeamBuilderConstructor[]>([]))
+      )
+    }).pipe(
       map(
-        (team): MyTeamState => ({
+        ({ team, drivers, constructors }): MyTeamState => ({
           status: 'loaded',
           team,
-          errorMessage: ''
+          errorMessage: '',
+          driverStats: this.buildDriverStats(drivers),
+          constructorStats: this.buildConstructorStats(constructors)
         })
       ),
       catchError((error) => {
@@ -75,20 +91,26 @@ export class MyTeamPageComponent {
           errorMessage:
             status === 'empty'
               ? 'You have not created a fantasy team yet.'
-              : getApiErrorMessage(error, 'Failed to load your fantasy team.')
+              : getApiErrorMessage(error, 'Failed to load your fantasy team.'),
+          driverStats: {} as TeamStatsMap,
+          constructorStats: {} as TeamStatsMap
         });
       }),
       startWith({
         status: 'loading',
         team: null,
-        errorMessage: ''
+        errorMessage: '',
+        driverStats: {} as TeamStatsMap,
+        constructorStats: {} as TeamStatsMap
       } satisfies MyTeamState)
     ),
     {
       initialValue: {
         status: 'loading',
         team: null,
-        errorMessage: ''
+        errorMessage: '',
+        driverStats: {} as TeamStatsMap,
+        constructorStats: {} as TeamStatsMap
       } satisfies MyTeamState
     }
   );
@@ -96,6 +118,8 @@ export class MyTeamPageComponent {
   readonly isLoading = computed(() => this.teamState().status === 'loading');
   readonly team = computed(() => this.teamState().team);
   readonly errorMessage = computed(() => this.teamState().errorMessage);
+  readonly driverStats = computed(() => this.teamState().driverStats);
+  readonly constructorStats = computed(() => this.teamState().constructorStats);
   readonly spentBudget = computed(() => {
     const currentTeam = this.team();
 
@@ -138,6 +162,49 @@ export class MyTeamPageComponent {
 
     return this.getTeamColor(firstDriver.constructorName);
   });
+  readonly totalCurrentPoints = computed(() => {
+    const currentTeam = this.team();
+
+    if (!currentTeam) {
+      return 0;
+    }
+
+    return (
+      currentTeam.drivers.reduce(
+        (total, driver) => total + this.getDriverPoints(driver),
+        0
+      ) +
+      currentTeam.constructors.reduce(
+        (total, constructorItem) =>
+          total + this.getConstructorPoints(constructorItem),
+        0
+      )
+    );
+  });
+  readonly driverCurrentWins = computed(() => {
+    const currentTeam = this.team();
+
+    if (!currentTeam) {
+      return 0;
+    }
+
+    return currentTeam.drivers.reduce(
+      (total, driver) => total + this.getDriverWins(driver),
+      0
+    );
+  });
+  readonly constructorCurrentWins = computed(() => {
+    const currentTeam = this.team();
+
+    if (!currentTeam) {
+      return 0;
+    }
+
+    return currentTeam.constructors.reduce(
+      (total, constructorItem) => total + this.getConstructorWins(constructorItem),
+      0
+    );
+  });
 
   getDriverColor(driver: FantasyTeamDriver): string {
     return this.getTeamColor(driver.constructorName);
@@ -145,6 +212,50 @@ export class MyTeamPageComponent {
 
   getConstructorColor(constructorItem: FantasyTeamConstructor): string {
     return this.getTeamColor(constructorItem.name);
+  }
+
+  getDriverPoints(driver: FantasyTeamDriver): number {
+    return this.driverStats()[driver.id]?.currentPoints ?? 0;
+  }
+
+  getConstructorPoints(constructorItem: FantasyTeamConstructor): number {
+    return this.constructorStats()[constructorItem.id]?.currentPoints ?? 0;
+  }
+
+  private getDriverWins(driver: FantasyTeamDriver): number {
+    return this.driverStats()[driver.id]?.currentWins ?? 0;
+  }
+
+  private getConstructorWins(constructorItem: FantasyTeamConstructor): number {
+    return this.constructorStats()[constructorItem.id]?.currentWins ?? 0;
+  }
+
+  private buildDriverStats(drivers: TeamBuilderDriver[]): TeamStatsMap {
+    return drivers.reduce<TeamStatsMap>((stats, driver) => {
+      stats[driver.id] = {
+        currentPoints: driver.currentPoints,
+        currentWins: driver.currentWins,
+        hasLiveData: driver.hasLiveData,
+        standingPosition: driver.standingPosition
+      };
+
+      return stats;
+    }, {});
+  }
+
+  private buildConstructorStats(
+    constructors: TeamBuilderConstructor[]
+  ): TeamStatsMap {
+    return constructors.reduce<TeamStatsMap>((stats, constructorItem) => {
+      stats[constructorItem.id] = {
+        currentPoints: constructorItem.currentPoints,
+        currentWins: constructorItem.currentWins,
+        hasLiveData: constructorItem.hasLiveData,
+        standingPosition: constructorItem.standingPosition
+      };
+
+      return stats;
+    }, {});
   }
 
   private getTeamColor(teamName: string): string {

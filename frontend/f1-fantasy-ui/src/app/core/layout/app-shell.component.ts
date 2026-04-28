@@ -27,6 +27,10 @@ export class AppShellComponent {
     return this.router.url === '/login' || this.router.url === '/register';
   }
 
+  isFantasyRoute(): boolean {
+    return this.router.url === '/team-builder' || this.router.url === '/my-team';
+  }
+
   toggleNav(): void {
     this.isNavOpen.update((value) => !value);
   }

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { FantasyTeamApiService } from '../services/fantasy-team-api.service';
+import { TeamBuilderApiService } from '../services/team-builder-api.service';
 import { MyTeamPageComponent } from './my-team-page.component';
 
 describe('MyTeamPageComponent', () => {
@@ -26,6 +27,13 @@ describe('MyTeamPageComponent', () => {
                 constructors: [],
                 drivers: []
               })
+          }
+        },
+        {
+          provide: TeamBuilderApiService,
+          useValue: {
+            getDrivers: () => of([]),
+            getConstructors: () => of([])
           }
         }
       ]

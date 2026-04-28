@@ -13,24 +13,38 @@
       <div class="team-hero__copy">
         <p class="eyebrow">Locked lineup</p>
         <h1>{{ savedTeam.name }}</h1>
-        <p class="team-hero__manager">Managed by {{ savedTeam.username }}</p>
+
+        <div class="team-hero__budget">
+          <div class="budget-line" aria-label="Budget used">
+            <span class="budget-line__fill"></span>
+          </div>
+
+          <div class="budget-meta">
+            <strong>${{ spentBudget() | number: '1.0-1' }}M spent</strong>
+            <span>${{ savedTeam.remainingBudget | number: '1.0-1' }}M remaining</span>
+          </div>
+        </div>
       </div>
 
-      <div class="team-hero__budget">
-        <div class="budget-gauge" aria-label="Budget used">
-          <div class="budget-gauge__inner">
-            <span>Spent</span>
-            <strong>${{ spentBudget() | number: '1.0-1' }}M</strong>
+      <div class="team-hero__aside">
+        <div class="score-card" aria-label="Current team form">
+          <span class="score-card__label">Current points</span>
+          <strong class="score-card__value">{{ totalCurrentPoints() | number: '1.0-0' }}</strong>
+
+          <div class="wins-panel">
+            <div class="wins-panel__item">
+              <strong>{{ driverCurrentWins() }}</strong>
+              <span>Driver wins</span>
+            </div>
+            <div class="wins-panel__item">
+              <strong>{{ constructorCurrentWins() }}</strong>
+              <span>Constructor wins</span>
+            </div>
           </div>
         </div>
 
-        <div class="budget-meta">
-          <span>${{ savedTeam.remainingBudget | number: '1.0-1' }}M remaining</span>
-          <strong>${{ savedTeam.budgetCap | number: '1.0-1' }}M cap</strong>
-        </div>
+        <a class="team-hero__action" routerLink="/team-builder">Tune lineup</a>
       </div>
-
-      <a class="team-hero__action" routerLink="/team-builder">Tune lineup</a>
     </header>
 
     <div class="garage-layout">
@@ -52,7 +66,10 @@
                 <strong>{{ driver.fullName }}</strong>
                 <p>{{ driver.constructorName }}</p>
               </div>
-              <div class="driver-card__price">${{ driver.price | number: '1.0-1' }}M</div>
+              <div class="driver-card__metrics">
+                <span>${{ driver.price | number: '1.0-1' }}M</span>
+                <span>{{ getDriverPoints(driver) | number: '1.0-0' }} pts</span>
+              </div>
             </article>
           }
 
@@ -84,9 +101,10 @@
                   <strong>{{ constructor.name }}</strong>
                   <p>{{ constructor.code }}</p>
                 </div>
-                <span class="constructor-card__price">
-                  ${{ constructor.price | number: '1.0-1' }}M
-                </span>
+                <div class="constructor-card__metrics">
+                  <span>${{ constructor.price | number: '1.0-1' }}M</span>
+                  <span>{{ getConstructorPoints(constructor) | number: '1.0-0' }} pts</span>
+                </div>
               </article>
             }
 

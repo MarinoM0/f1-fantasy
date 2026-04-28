@@ -41,7 +41,7 @@ describe('TeamBuilderPageComponent', () => {
         {
           provide: Router,
           useValue: {
-            navigate: jasmine.createSpy('navigate')
+            navigate: vi.fn()
           }
         }
       ]
