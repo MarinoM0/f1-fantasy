@@ -157,6 +157,15 @@ namespace F1Fantasy.Api.External.Jolpica
 
     public class JolpicaLocation
     {
+        [JsonPropertyName("lat")]
+        public string? Latitude { get; set; }
+
+        [JsonPropertyName("long")]
+        public string? Longitude { get; set; }
+
+        [JsonPropertyName("locality")]
+        public string Locality { get; set; } = string.Empty;
+
         [JsonPropertyName("country")]
         public string Country { get; set; } = string.Empty;
     }

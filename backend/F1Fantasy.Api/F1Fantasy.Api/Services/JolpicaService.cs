@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net.Http.Json;
+using F1Fantasy.Api.DTOs.Dashboard;
 using F1Fantasy.Api.DTOs.Jolpica;
 using F1Fantasy.Api.External.Jolpica;
 using F1Fantasy.Api.Interfaces;
@@ -122,6 +123,43 @@ public class JolpicaService : IJolpicaService
                 RaceTime = result.Time?.Time
             }).ToList()
         };
+    }
+
+    public async Task<DashboardUpcomingRaceDto?> GetNextRaceAsync (
+        string season = "current",
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await GetFromJolpicaAsync($"{season}/next/races.json", cancellationToken);
+
+            var raceTable = response.MRData.RaceTable;
+            var race = raceTable?.Races.FirstOrDefault();
+
+            if (race is null)
+            {
+                return null;
+            }
+
+            return new DashboardUpcomingRaceDto
+            {
+                LocalRaceId = null,
+                Season = race.Season,
+                RoundNumber = ParseInt(race.Round),
+                RaceName = race.RaceName,
+                CircuitId = race.Circuit.CircuitId,
+                CircuitName = race.Circuit.CircuitName,
+                Country = race.Circuit.Location.Country,
+                Locality = race.Circuit.Location.Locality,
+                StartTimeUtc = ParseRaceDateUtc(race.Date, race.Time),
+                DataSource = "jolpica"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch next race from Jolpica");
+            return null;
+        }
     }
 
     private async Task<JolpicaResponse> GetFromJolpicaAsync(

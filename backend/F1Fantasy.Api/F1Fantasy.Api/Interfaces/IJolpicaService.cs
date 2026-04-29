@@ -1,4 +1,6 @@
-﻿using F1Fantasy.Api.DTOs.Jolpica;
+﻿using F1Fantasy.Api.DTOs.Dashboard;
+using F1Fantasy.Api.DTOs.Jolpica;
+
 
 namespace F1Fantasy.Api.Interfaces
 {
@@ -15,6 +17,10 @@ namespace F1Fantasy.Api.Interfaces
         Task<JolpicaRaceResultDto?> GetRaceResultsAsync(
             string season = "current",
             string round = "last",
+            CancellationToken cancellationToken = default);
+
+        Task<DashboardUpcomingRaceDto?> GetNextRaceAsync(
+            string season = "current",
             CancellationToken cancellationToken = default);
     }
 }

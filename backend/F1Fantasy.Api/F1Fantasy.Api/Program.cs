@@ -73,6 +73,7 @@ builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<ConstructorService>();
 builder.Services.AddScoped<RaceService>();
+builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<IFantasyTeamService, FantasyTeamService>();
 builder.Services.AddScoped<TeamBuilderService>();
 

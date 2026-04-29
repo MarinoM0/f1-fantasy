@@ -207,16 +207,12 @@
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
-  box-shadow: 0 16px 34px rgb(255 42 35 / 20%);
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
+  transition: transform 120ms ease;
 }
 
 .team-hero__action:hover,
 .state-panel__action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 20px 40px rgb(255 42 35 / 26%);
 }
 
 .garage-layout {
