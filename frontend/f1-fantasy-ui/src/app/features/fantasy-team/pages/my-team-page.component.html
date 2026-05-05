@@ -1,9 +1,7 @@
 <section class="my-team-shell">
   @if (isLoading()) {
     <section class="state-panel">
-      <p class="state-panel__eyebrow">Garage sync</p>
-      <h1>Loading your team...</h1>
-      <span class="state-panel__bar"></span>
+      <p class="state-text">Loading your team...</p>
     </section>
   } @else if (team(); as savedTeam) {
     <header

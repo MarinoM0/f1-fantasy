@@ -28,7 +28,8 @@ export class AppShellComponent {
   }
 
   isFantasyRoute(): boolean {
-    return this.router.url === '/team-builder' || this.router.url === '/my-team';
+    const fantasyUrls = ['/', '/dashboard', '/team-builder', '/my-team'];
+    return fantasyUrls.includes(this.router.url);
   }
 
   toggleNav(): void {

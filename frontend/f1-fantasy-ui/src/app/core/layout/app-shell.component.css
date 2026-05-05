@@ -11,11 +11,10 @@
 .shell--fantasy {
   background-color: #0b0c10;
   background-image:
-    radial-gradient(circle at 12% 0%, rgb(178 29 24 / 11%), transparent 22rem),
     linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px),
     linear-gradient(180deg, rgb(255 255 255 / 2%) 1px, transparent 1px),
     linear-gradient(180deg, #111219 0%, #0b0c10 100%);
-  background-size: auto, 56px 56px, 56px 56px, auto;
+  background-size: 56px 56px, 56px 56px, auto;
   background-position: 0 0;
 }
 

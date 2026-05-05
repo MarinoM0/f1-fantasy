@@ -24,3 +24,5 @@ Thumbs.db
 backend/F1Fantasy.Api/.dotnet/
 backend/F1Fantasy.Api/.nuget/
 backend/F1Fantasy.Api/artifacts/
+
+.claude*

@@ -1,4 +1,152 @@
-<section class="page-card">
-  <h1 class="page-title">Dashboard</h1>
-  <p class="page-subtitle">Global leaderboard and overview</p>
+<section class="dashboard-shell">
+  <header class="dashboard-topbar">
+    <div>
+      <p class="eyebrow">Race weekend</p>
+      <h1 class="page-title">Dashboard</h1>
+    </div>
+
+    @if (upcomingRace(); as race) {
+      <div class="round-pill">
+        <span class="round-pill__label">Round</span>
+        <strong class="round-pill__value">{{ race.roundNumber }}</strong>
+        <span class="round-pill__cap">/ {{ race.season }}</span>
+      </div>
+    }
+  </header>
+
+  @if (isLoading()) {
+    <section class="state-panel">
+      <p class="state-text">Loading dashboard data...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel state-panel--error">
+      <p class="state-text state-text--error">{{ errorMessage() }}</p>
+    </section>
+  } @else {
+    <div class="dashboard-layout">
+      <section class="race-panel">
+        @if (upcomingRace(); as race) {
+          <div class="race-panel__head">
+            <div class="race-panel__copy">
+              <p class="section-label">Up next</p>
+              <h2 class="race-panel__title">{{ race.raceName }}</h2>
+              @if (raceLocationLabel()) {
+                <p class="race-panel__location">{{ raceLocationLabel() }}</p>
+              }
+            </div>
+
+            <div class="race-panel__round" aria-hidden="true">
+              R{{ race.roundNumber }}
+            </div>
+          </div>
+
+          <dl class="race-panel__meta">
+            <div>
+              <dt>Circuit</dt>
+              <dd>{{ race.circuitName }}</dd>
+            </div>
+            <div>
+              <dt>Lights out</dt>
+              <dd>{{ raceDateLabel() }}</dd>
+            </div>
+          </dl>
+
+          <div class="countdown">
+            <p class="countdown__label">
+              {{ countdown()?.isStarted ? 'Race underway' : 'Time to lights out' }}
+            </p>
+
+            @if (countdown(); as count) {
+              @if (count.isStarted) {
+                <p class="countdown__live">Race is live</p>
+              } @else {
+                <div class="countdown__grid">
+                  <div class="countdown__cell">
+                    <strong>{{ formatCountdownUnit(count.days) }}</strong>
+                    <span>Days</span>
+                  </div>
+                  <div class="countdown__cell">
+                    <strong>{{ formatCountdownUnit(count.hours) }}</strong>
+                    <span>Hours</span>
+                  </div>
+                  <div class="countdown__cell">
+                    <strong>{{ formatCountdownUnit(count.minutes) }}</strong>
+                    <span>Minutes</span>
+                  </div>
+                  <div class="countdown__cell">
+                    <strong>{{ formatCountdownUnit(count.seconds) }}</strong>
+                    <span>Seconds</span>
+                  </div>
+                </div>
+              }
+            } @else {
+              <p class="countdown__live countdown__live--muted">Schedule pending</p>
+            }
+          </div>
+        } @else {
+          <div class="race-panel__empty">
+            <p class="section-label">Up next</p>
+            <p class="state-text">No upcoming race scheduled.</p>
+          </div>
+        }
+      </section>
+
+      <section class="leaderboard-panel">
+        <header class="leaderboard-panel__head">
+          <div>
+            <p class="section-label">Global standings</p>
+            <h2 class="leaderboard-panel__title">Leaderboard</h2>
+          </div>
+          <span class="leaderboard-count">{{ leaderboard().length }} managers</span>
+        </header>
+
+        <div
+          class="leaderboard-list"
+          #leaderboardScroller
+          (scroll)="onLeaderboardScroll()">
+          @for (entry of leaderboard(); track trackLeaderboardEntry($index, entry)) {
+            <article
+              class="leaderboard-row"
+              [class.leaderboard-row--current]="isCurrentUserEntry(entry)"
+              [class.leaderboard-row--leader]="entry.rank === 1"
+              [attr.data-current-user]="isCurrentUserEntry(entry)">
+              <div class="leaderboard-row__rank">{{ entry.rank }}</div>
+
+              <div class="leaderboard-row__identity">
+                <h3>{{ entry.username }}</h3>
+                <p>{{ entry.teamName }}</p>
+              </div>
+
+              <div class="leaderboard-row__points">
+                <strong>{{ entry.totalPoints }}</strong>
+                <span>pts</span>
+              </div>
+            </article>
+          } @empty {
+            <p class="leaderboard-empty">No managers ranked yet.</p>
+          }
+        </div>
+
+        @if (currentUserEntry(); as currentEntry) {
+          @if (!isCurrentUserCardVisible()) {
+            <article
+              class="leaderboard-row leaderboard-row--current leaderboard-sticky"
+              aria-label="Your standings">
+              <div class="leaderboard-row__rank">{{ currentEntry.rank }}</div>
+
+              <div class="leaderboard-row__identity">
+                <h3>{{ currentEntry.username }}</h3>
+                <p>{{ currentEntry.teamName }}</p>
+              </div>
+
+              <div class="leaderboard-row__points">
+                <strong>{{ currentEntry.totalPoints }}</strong>
+                <span>pts</span>
+              </div>
+            </article>
+          }
+        }
+      </section>
+    </div>
+  }
 </section>

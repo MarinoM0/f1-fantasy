@@ -138,7 +138,8 @@ button {
 }
 
 app-team-builder-page,
-app-my-team-page {
+app-my-team-page,
+app-dashboard-page {
   display: block;
   min-height: calc(100vh - 8.9rem);
 }

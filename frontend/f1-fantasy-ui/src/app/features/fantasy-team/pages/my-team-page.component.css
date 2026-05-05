@@ -29,7 +29,7 @@
 .state-panel {
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: var(--panel-deep);
+  background: linear-gradient(180deg, #141424, #0e0e18);
 }
 
 .team-hero {
@@ -372,14 +372,25 @@
 }
 
 .state-panel {
-  min-height: 24rem;
+  min-height: 12rem;
   display: grid;
   place-items: center;
   align-content: center;
   gap: 0.85rem;
-  padding: 1.4rem;
+  padding: 2rem;
   text-align: center;
   overflow: hidden;
+}
+
+.state-panel--empty {
+  min-height: 24rem;
+  padding: 1.4rem;
+}
+
+.state-text {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
 }
 
 .state-panel h1 {
