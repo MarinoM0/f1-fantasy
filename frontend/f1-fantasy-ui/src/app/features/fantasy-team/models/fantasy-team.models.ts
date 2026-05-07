@@ -14,6 +14,7 @@ export interface FantasyTeamDriver {
   constructorId: number;
   constructorName: string;
   constructorCode: string;
+  pointsAtTransfer: number;
 }
 
 export interface FantasyTeamConstructor {
@@ -21,6 +22,7 @@ export interface FantasyTeamConstructor {
   name: string;
   code: string;
   price: number;
+  pointsAtTransfer:number;
 }
 
 export interface FantasyTeam {
@@ -28,6 +30,8 @@ export interface FantasyTeam {
   name: string;
   budgetCap: number;
   remainingBudget: number;
+  hasUsedTransfer: boolean;
+  lockedInPoints: number;
   userId: number;
   username: string;
   constructors: FantasyTeamConstructor[];

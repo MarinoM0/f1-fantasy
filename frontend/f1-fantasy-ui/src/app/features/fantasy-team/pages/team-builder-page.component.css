@@ -333,6 +333,13 @@
   line-height: 1.4;
 }
 
+.team-board__transfer-locked {
+  margin: 0;
+  color: #fbbf24;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .metric-box,
 .selector-metric {
   padding: 0.7rem;

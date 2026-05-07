@@ -169,17 +169,21 @@ export class MyTeamPageComponent {
       return 0;
     }
 
-    return (
-      currentTeam.drivers.reduce(
-        (total, driver) => total + this.getDriverPoints(driver),
-        0
-      ) +
-      currentTeam.constructors.reduce(
-        (total, constructorItem) =>
-          total + this.getConstructorPoints(constructorItem),
-        0
-      )
-    );
+    let driverContribution = 0;
+    for (const driver of currentTeam.drivers) {
+      const currentPoints = this.getDriverPoints(driver);
+      const pointsSinceJoining = Math.max(0, currentPoints - driver.pointsAtTransfer);
+      driverContribution += pointsSinceJoining;
+    }
+
+    let constructorContribution = 0;
+    for (const constructorItem of currentTeam.constructors) {
+      const currentPoints = this.getConstructorPoints(constructorItem);
+      const pointsSinceJoining = Math.max(0, currentPoints - constructorItem.pointsAtTransfer);
+      constructorContribution += pointsSinceJoining;
+    }
+
+    return currentTeam.lockedInPoints + driverContribution + constructorContribution;
   });
   readonly driverCurrentWins = computed(() => {
     const currentTeam = this.team();

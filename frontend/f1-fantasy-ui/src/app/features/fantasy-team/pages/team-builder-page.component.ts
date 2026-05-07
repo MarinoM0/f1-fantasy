@@ -177,12 +177,26 @@ export class TeamBuilderPageComponent {
   );
   readonly isSubmitting = computed(() => this.creationState() === 'submitting');
   private readonly hasExistingTeamSignal = computed(() => !!this.savedTeamSignal());
-  private readonly canCreateTeamSignal = computed(
-    () => this.isAuthenticated() && this.isTeamComplete() && !this.isSubmitting()
+
+  private readonly transferUsedSignal = computed(
+    () => this.savedTeamSignal()?.hasUsedTransfer ?? false
   );
+
+  private readonly canCreateTeamSignal = computed (
+    () => 
+      this.isAuthenticated() &&
+      this.isTeamComplete() &&
+      !this.isSubmitting() &&
+      !this.transferUsedSignal()
+  );
+
   private readonly createTeamButtonLabelSignal = computed(() => {
     if (!this.isAuthenticated()) {
       return 'Login to create a team';
+    }
+
+    if(this. transferUsedSignal()) {
+      return 'No transfers remaining';
     }
 
     if (this.isSubmitting()) {
@@ -244,6 +258,10 @@ export class TeamBuilderPageComponent {
 
   creationErrorMessage(): string {
     return this.creationErrorMessageSignal();
+  }
+
+  transferUsed(): boolean {
+    return this.transferUsedSignal();
   }
 
   createTeam(): void {

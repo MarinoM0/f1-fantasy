@@ -122,6 +122,12 @@
           @if (creationErrorMessage()) {
             <p class="team-board__create-error">{{ creationErrorMessage() }}</p>
           }
+
+          @if (transferUsed()) {
+            <p class="team-board__transfer-locked">
+              You have used your one allowed transfer. Your lineup is locked.
+            </p>
+          }
         </div>
       </aside>
 
