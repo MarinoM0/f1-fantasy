@@ -12,10 +12,17 @@ namespace F1Fantasy.Api.Services
         private const decimal BudgetCap = 100.00m;
 
         private readonly AppDbContext _dbContext;
+        private readonly IJolpicaService _jolpicaService;
+        private readonly ILogger<FantasyTeamService> _logger;
 
-        public FantasyTeamService(AppDbContext dbContext)
+        public FantasyTeamService(
+            AppDbContext dbContext,
+            IJolpicaService jolpicaService,
+            ILogger<FantasyTeamService> logger)
         {
             _dbContext = dbContext;
+            _jolpicaService = jolpicaService;
+            _logger = logger;
         }
 
         public async Task<FantasyTeamDto> CreateAsync(int userId, CreateFantasyTeamRequestDto request)
@@ -45,7 +52,9 @@ namespace F1Fantasy.Api.Services
 
             var fantasyTeam = await _dbContext.FantasyTeams
                 .Include(x => x.FantasyTeamDrivers)
+                    .ThenInclude(td => td.Driver)
                 .Include(x => x.FantasyTeamConstructors)
+                    .ThenInclude(tc => tc.Constructor)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (fantasyTeam is null)
@@ -53,12 +62,31 @@ namespace F1Fantasy.Api.Services
                 throw new KeyNotFoundException("Fantasy team not found.");
             }
 
+            if (fantasyTeam.HasUsedTransfer)
+            {
+                throw new InvalidOperationException("You have already used your one allowed team transfer");
+            }
+
+            var liveStandings = await FetchLiveStandingsOrThrowAsync();
+
+            var newLockedInPoints = LivePointsCalculatorService.CalculateTeamPoints(
+                fantasyTeam,
+                liveStandings.DriverPointsByCode,
+                liveStandings.ConstructorPointsByJolpicaId);
+
+            var driverBaselines = await BuildDriverBaselinesAsync(
+                selection.DriverIds, liveStandings.DriverPointsByCode);
+
+            var constructorBaselines = await BuildConstructorBaselinesAsync(
+                selection.ConstructorIds, liveStandings.ConstructorPointsByJolpicaId);
+
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             _dbContext.FantasyTeams.Remove(fantasyTeam);
             await _dbContext.SaveChangesAsync();
 
-            var replacementTeam = CreateFantasyTeamEntity(userId, selection);
+            var replacementTeam = CreateReplacementTeamEntity(
+                userId, selection, newLockedInPoints, driverBaselines, constructorBaselines);
             _dbContext.FantasyTeams.Add(replacementTeam);
             await _dbContext.SaveChangesAsync();
 
@@ -78,6 +106,8 @@ namespace F1Fantasy.Api.Services
                     Name = x.Name,
                     BudgetCap = x.BudgetCap,
                     RemainingBudget = x.RemainingBudget,
+                    HasUsedTransfer = x.HasUsedTransfer,
+                    LockedInPoints = x.LockedInPoints,
                     UserId = x.UserId,
                     Username = x.User.Username,
                     Constructors = x.FantasyTeamConstructors
@@ -87,7 +117,8 @@ namespace F1Fantasy.Api.Services
                             Id = tc.Constructor.Id,
                             Name = tc.Constructor.Name,
                             Code = tc.Constructor.Code,
-                            Price = tc.Constructor.Price
+                            Price = tc.Constructor.Price,
+                            PointsAtTransfer = tc.PointsAtTransfer
                         })
                         .ToList(),
                     Drivers = x.FantasyTeamDrivers
@@ -103,12 +134,81 @@ namespace F1Fantasy.Api.Services
                             Price = td.Driver.Price,
                             ConstructorId = td.Driver.ConstructorId,
                             ConstructorName = td.Driver.Constructor.Name,
-                            ConstructorCode = td.Driver.Constructor.Code
+                            ConstructorCode = td.Driver.Constructor.Code,
+                            PointsAtTransfer = td.PointsAtTransfer
                         })
                         .ToList()
                 })
                 .FirstOrDefaultAsync();
         }
+
+        private async Task<LiveStandings> FetchLiveStandingsOrThrowAsync()
+        {
+            try
+            {
+                var driverStandingsTask = _jolpicaService.GetDriverStandingsAsync();
+                var constructorStandingsTask = _jolpicaService.GetConstructorStandingsAsync();
+
+                await Task.WhenAll(driverStandingsTask, constructorStandingsTask);
+
+                var driverStandings = await driverStandingsTask;
+                var constructorStandings = await constructorStandingsTask;
+
+                return new LiveStandings(
+                    LivePointsCalculatorService.BuildDriverPointsByCode(driverStandings),
+                    LivePointsCalculatorService.BuildConstructorPointsByJolpicaId(constructorStandings));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "Failed to fetch live standings while processing a fantasy team transfer");
+
+                throw new InvalidOperationException(
+                    "Unable to lock in your current points right now. Please try again in a moment.");
+            }
+        }
+
+  
+        private async Task<IReadOnlyDictionary<int, decimal>> BuildDriverBaselinesAsync(
+            IReadOnlyCollection<int> driverIds,
+            IReadOnlyDictionary<string, decimal> driverPointsByCode)
+        {
+            var drivers = await _dbContext.Drivers
+                .Where(d => driverIds.Contains(d.Id))
+                .ToListAsync();
+
+            var baselines = new Dictionary<int, decimal>();
+
+            foreach (var driver in drivers)
+            {
+                var currentPoints = LivePointsCalculatorService.GetDriverPoints(driver, driverPointsByCode);
+                baselines[driver.Id] = currentPoints;
+            }
+
+            return baselines;
+        }
+
+
+        private async Task<IReadOnlyDictionary<int, decimal>> BuildConstructorBaselinesAsync(
+            IReadOnlyCollection<int> constructorIds,
+            IReadOnlyDictionary<string, decimal> constructorPointsByJolpicaId)
+        {
+            var constructors = await _dbContext.Constructors
+                .Where(c => constructorIds.Contains(c.Id))
+                .ToListAsync();
+
+            var baselines = new Dictionary<int, decimal>();
+
+            foreach (var constructor in constructors)
+            {
+                var currentPoints = LivePointsCalculatorService.GetConstructorPoints(
+                    constructor, constructorPointsByJolpicaId);
+                baselines[constructor.Id] = currentPoints;
+            }
+
+            return baselines;
+        }
+
 
         private static FantasyTeam CreateFantasyTeamEntity(int userId, ValidatedTeamSelection selection)
         {
@@ -130,6 +230,52 @@ namespace F1Fantasy.Api.Services
                         ConstructorId = constructorId
                     })
                     .ToList()
+            };
+        }
+
+        private static FantasyTeam CreateReplacementTeamEntity(
+            int userId,
+            ValidatedTeamSelection selection,
+            decimal lockedInPoints,
+            IReadOnlyDictionary<int, decimal> driverBaselines,
+            IReadOnlyDictionary<int, decimal> constructorBaselines)
+        {
+            var teamDrivers = new List<FantasyTeamDriver>();
+
+            foreach (var driverId in selection.DriverIds)
+            {
+                var baseline = driverBaselines.TryGetValue(driverId, out var points) ? points : 0m;
+
+                teamDrivers.Add(new FantasyTeamDriver
+                {
+                    DriverId = driverId,
+                    PointsAtTransfer = baseline
+                });
+            }
+
+            var teamConstructors = new List<FantasyTeamConstructor>();
+
+            foreach (var constructorId in selection.ConstructorIds)
+            {
+                var baseline = constructorBaselines.TryGetValue(constructorId, out var points) ? points : 0m;
+
+                teamConstructors.Add(new FantasyTeamConstructor
+                {
+                    ConstructorId = constructorId,
+                    PointsAtTransfer = baseline
+                });
+            }
+
+            return new FantasyTeam
+            {
+                Name = selection.TeamName,
+                BudgetCap = BudgetCap,
+                RemainingBudget = BudgetCap - selection.TotalPrice,
+                UserId = userId,
+                HasUsedTransfer = true,
+                LockedInPoints = lockedInPoints,
+                FantasyTeamDrivers = teamDrivers,
+                FantasyTeamConstructors = teamConstructors
             };
         }
 
@@ -209,5 +355,9 @@ namespace F1Fantasy.Api.Services
             IReadOnlyCollection<int> DriverIds,
             IReadOnlyCollection<int> ConstructorIds,
             decimal TotalPrice);
+
+        private sealed record LiveStandings(
+            IReadOnlyDictionary<string, decimal> DriverPointsByCode,
+            IReadOnlyDictionary<string, decimal> ConstructorPointsByJolpicaId);
     }
 }

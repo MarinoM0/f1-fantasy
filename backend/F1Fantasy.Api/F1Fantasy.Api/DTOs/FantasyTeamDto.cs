@@ -9,6 +9,10 @@ namespace F1Fantasy.Api.DTOs
         public decimal BudgetCap { get; set; }
         public decimal RemainingBudget { get; set; }
 
+        public bool HasUsedTransfer { get; set; }
+
+        public decimal LockedInPoints { get; set; }
+
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
 

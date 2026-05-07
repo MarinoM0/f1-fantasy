@@ -75,11 +75,14 @@ public class AppDbContext : DbContext
             entity.Property(x => x.Name).HasMaxLength(100).IsRequired();
             entity.Property(x => x.BudgetCap).HasPrecision(10, 2);
             entity.Property(x => x.RemainingBudget).HasPrecision(10, 2);
+            entity.Property(x => x.LockedInPoints).HasPrecision(10,2);
         });
 
         modelBuilder.Entity<FantasyTeamDriver>(entity =>
         {
             entity.HasKey(x => new { x.FantasyTeamId, x.DriverId });
+
+            entity.Property(x => x.PointsAtTransfer).HasPrecision(10, 2);
 
             entity.HasOne(x => x.FantasyTeam)
                 .WithMany(x => x.FantasyTeamDrivers)
@@ -94,6 +97,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<FantasyTeamConstructor>(entity =>
         {
             entity.HasKey(x => new { x.FantasyTeamId, x.ConstructorId });
+
+            entity.Property(x => x.PointsAtTransfer).HasPrecision(10, 2);
 
             entity.HasOne(x => x.FantasyTeam)
                 .WithMany(x => x.FantasyTeamConstructors)

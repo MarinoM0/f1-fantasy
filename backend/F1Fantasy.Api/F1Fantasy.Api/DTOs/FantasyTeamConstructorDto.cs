@@ -6,4 +6,6 @@ public class FantasyTeamConstructorDto
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public decimal Price { get; set; }
+
+    public decimal PointsAtTransfer { get; set; }
 }

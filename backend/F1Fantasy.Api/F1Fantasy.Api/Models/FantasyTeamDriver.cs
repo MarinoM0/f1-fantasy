@@ -7,5 +7,7 @@
 
         public int DriverId { get; set; }
         public Driver Driver { get; set; } = null!;
+
+        public decimal PointsAtTransfer { get; set; } = 0;
     }
 }

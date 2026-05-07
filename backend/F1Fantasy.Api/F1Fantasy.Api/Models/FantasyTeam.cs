@@ -6,6 +6,9 @@
         public decimal BudgetCap { get; set; }
         public decimal RemainingBudget { get; set; }
 
+        public bool HasUsedTransfer { get; set; } = false;
+        public decimal LockedInPoints { get; set; } = 0;
+
         public int UserId { get; set; }
         public AppUser User { get; set; } = null!;
 

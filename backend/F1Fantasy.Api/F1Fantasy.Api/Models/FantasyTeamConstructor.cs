@@ -7,5 +7,7 @@
 
         public int ConstructorId { get; set; }
         public Constructor Constructor { get; set; } = null!;
+
+        public decimal PointsAtTransfer { get; set; } = 0;
     }
 }

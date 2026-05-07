@@ -11,5 +11,7 @@
         public int ConstructorId { get; set; }
         public string ConstructorName { get; set; } = string.Empty;
         public string ConstructorCode { get; set; } = string.Empty;
+
+        public decimal PointsAtTransfer { get; set; }
     }
 }
