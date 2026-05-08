@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<RaceResult> RaceResults => Set<RaceResult>();
     public DbSet<RaceResultDriver> RaceResultDrivers => Set<RaceResultDriver>();
     public DbSet<TeamScore> TeamScores => Set<TeamScore>();
+    public DbSet<League> Leagues => Set<League>();
+    public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -149,6 +151,34 @@ public class AppDbContext : DbContext
             entity.HasOne(x => x.Race)
                 .WithMany(x => x.TeamScores)
                 .HasForeignKey(x => x.RaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<League>(entity =>
+        {
+            entity.Property(x => x.Name).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.InviteCode).HasMaxLength(6).IsRequired();
+
+            entity.HasIndex(x => x.InviteCode).IsUnique();
+
+            entity.HasOne(x => x.Owner)
+                .WithMany(x => x.OwnedLeagues)
+                .HasForeignKey(x => x.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<LeagueMember>(entity =>
+        {
+            entity.HasKey(x => new { x.LeagueId, x.UserId });
+
+            entity.HasOne(x => x.League)
+                .WithMany(x => x.Members)
+                .HasForeignKey(x => x.LeagueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.LeagueMemberships)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

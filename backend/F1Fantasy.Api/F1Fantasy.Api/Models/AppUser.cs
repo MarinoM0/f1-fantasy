@@ -8,5 +8,8 @@
 
         public FantasyTeam? FantasyTeam { get; set; }
         public ICollection<TeamScore> TeamScores { get; set; } = new List<TeamScore>();
+
+        public ICollection<LeagueMember> LeagueMemberships { get; set; } = new List<LeagueMember>();
+        public ICollection<League> OwnedLeagues { get; set; } = new List<League>();
     }
 }
