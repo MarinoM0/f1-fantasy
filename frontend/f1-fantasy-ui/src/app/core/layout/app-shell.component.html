@@ -22,6 +22,7 @@
                 <a class="shell__nav-link" routerLink="/team-builder" routerLinkActive="active" (click)="closeNav()">Team Builder</a>
                 @if (isAuthenticated()) {
                     <a class="shell__nav-link" routerLink="/my-team" routerLinkActive="active" (click)="closeNav()">My Team</a>
+                    <a class="shell__nav-link" routerLink="/leagues" routerLinkActive="active" (click)="closeNav()">Leagues</a>
                 }
             </div>
             @if (!isAuthenticated()) {

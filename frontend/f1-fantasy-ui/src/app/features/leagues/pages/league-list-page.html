@@ -1,0 +1,123 @@
+<section class="leagues">
+  <header class="leagues__header">
+    <h1>My Leagues</h1>
+    <div class="leagues__actions">
+      <button type="button" class="btn btn--primary" (click)="openCreateModal()">
+        Create league
+      </button>
+      <button type="button" class="btn btn--secondary" (click)="openJoinModal()">
+        Join with code
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <p class="leagues__status">Loading your leagues…</p>
+  } @else if (errorMessage()) {
+    <p class="leagues__status leagues__status--error">{{ errorMessage() }}</p>
+  } @else if (leagues().length === 0) {
+    <p class="leagues__status">
+      You aren't in any leagues yet. Create one or join with an invite code.
+    </p>
+  } @else {
+    <ul class="leagues__list">
+      @for (league of leagues(); track trackLeague($index, league)) {
+        <li class="league-card">
+          <a [routerLink]="['/leagues', league.id]" class="league-card__link">
+            <h2 class="league-card__name">{{ league.name }}</h2>
+            <div class="league-card__meta">
+              <span>{{ league.memberCount }} members</span>
+              @if (league.isOwner) {
+                <span class="badge badge--owner">Owner</span>
+              }
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- ============ Create league modal ============ -->
+@if (isCreateModalOpen()) {
+  <div class="modal-backdrop" (click)="closeModals()">
+    <!-- stopPropagation so clicks inside the dialog don't bubble to the backdrop -->
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal__title">Create a league</h2>
+
+      <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()">
+        <label class="form-field">
+          <span class="form-field__label">League name</span>
+          <input
+            type="text"
+            formControlName="name"
+            maxlength="50"
+            autofocus
+          />
+        </label>
+
+        <!-- Field-level validation error (shows once the user has touched the field) -->
+        @if (nameError()) {
+          <p class="form-error">{{ nameError() }}</p>
+        }
+
+        <!-- Server-side / network error after the request fired -->
+        @if (submitError()) {
+          <p class="form-error">{{ submitError() }}</p>
+        }
+
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" (click)="closeModals()">Cancel</button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="createForm.invalid || isSubmitting()"
+          >
+            {{ isSubmitting() ? 'Creating…' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ============ Join league modal ============ -->
+@if (isJoinModalOpen()) {
+  <div class="modal-backdrop" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal__title">Join a league</h2>
+
+      <form [formGroup]="joinForm" (ngSubmit)="onSubmitJoin()">
+        <label class="form-field">
+          <span class="form-field__label">Invite code</span>
+          <input
+            type="text"
+            formControlName="inviteCode"
+            maxlength="6"
+            autofocus
+            style="text-transform: uppercase"
+          />
+        </label>
+
+        @if (inviteCodeError()) {
+          <p class="form-error">{{ inviteCodeError() }}</p>
+        }
+
+        @if (submitError()) {
+          <p class="form-error">{{ submitError() }}</p>
+        }
+
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" (click)="closeModals()">Cancel</button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="joinForm.invalid || isSubmitting()"
+          >
+            {{ isSubmitting() ? 'Joining…' : 'Join' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
