@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LeaguesApiService } from '../services/leagues-api.service';
 import { LeagueSummary } from '../models/league.models';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,6 +19,7 @@ export class LeagueListPage implements OnInit{
   private readonly leaguesApi = inject(LeaguesApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   //------------page state-----------------------
   readonly leagues = signal<LeagueSummary[]>([]);
@@ -104,10 +105,10 @@ export class LeagueListPage implements OnInit{
       .createLeague({ name })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (league) => {
           this.isSubmitting.set(false);
           this.closeModals();
-          this.loadLeagues();
+          this.router.navigate(['/leagues', league.id]);
         },
         error: (err) => {
           this.isSubmitting.set(false);
@@ -131,10 +132,10 @@ export class LeagueListPage implements OnInit{
       .joinLeague({ inviteCode: code })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (league) => {
           this.isSubmitting.set(false);
           this.closeModals();
-          this.loadLeagues();
+          this.router.navigate(['/leagues', league.id]); 
         },
         error: (err) => {
           this.isSubmitting.set(false);

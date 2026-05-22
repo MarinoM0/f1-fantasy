@@ -1,0 +1,151 @@
+<section class="detail">
+  <div class="detail__back-row">
+    <a class="back-link" routerLink="/leagues">← All leagues</a>
+  </div>
+
+  @if (isLoading()) {
+    <p class="detail__status">Loading league…</p>
+  } @else if (errorMessage()) {
+    <p class="detail__status detail__status--error">{{ errorMessage() }}</p>
+  } @else if (league(); as l) {
+    <!-- ============ Header ============ -->
+    <header class="detail__header">
+      <div class="detail__title-block">
+        <p class="eyebrow">Private league</p>
+        <h1 class="page-title">{{ l.name }}</h1>
+        <p class="detail__meta">
+          {{ l.memberCount }} members · created by {{ l.ownerUsername }}
+        </p>
+      </div>
+
+      <div class="detail__actions">
+        <button
+          type="button"
+          class="invite-pill"
+          (click)="copyInviteCode()"
+          title="Copy invite code"
+        >
+          <span class="invite-pill__label">Invite code</span>
+          <strong class="invite-pill__value">{{ l.inviteCode }}</strong>
+          <span class="invite-pill__copy">{{ copiedMessage() || 'Copy' }}</span>
+        </button>
+
+        @if (l.isOwner) {
+          <button type="button" class="btn btn--danger" (click)="openDeleteConfirm()">
+            Delete league
+          </button>
+        } @else {
+          <button type="button" class="btn btn--secondary" (click)="openLeaveConfirm()">
+            Leave league
+          </button>
+        }
+      </div>
+    </header>
+
+    <!-- ============ Grid: leaderboard + members ============ -->
+    <div class="detail__grid">
+      <!-- ---- Leaderboard panel ---- -->
+      <section class="panel">
+        <header class="panel__header">
+          <h2>Standings</h2>
+          <p class="panel__subtitle">Live points from current F1 standings.</p>
+        </header>
+
+        @if (isLeaderboardLoading()) {
+          <p class="panel__status">Loading standings…</p>
+        } @else if (leaderboard().length === 0) {
+          <p class="panel__status">No members have built a team yet.</p>
+        } @else {
+          <ol class="leaderboard">
+            @for (entry of leaderboard(); track trackLeaderboardEntry($index, entry)) {
+              <li
+                class="leaderboard__row"
+                [class.leaderboard__row--me]="isCurrentUserEntry(entry)"
+              >
+                <span class="leaderboard__rank">{{ entry.rank }}</span>
+                <div class="leaderboard__identity">
+                  <strong>{{ entry.username }}</strong>
+                  <span>{{ entry.teamName }}</span>
+                </div>
+                <span class="leaderboard__points">
+                  {{ entry.totalPoints | number: '1.0-1' }} pts
+                </span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      <!-- ---- Members panel ---- -->
+      <section class="panel">
+        <header class="panel__header">
+          <h2>Members</h2>
+        </header>
+
+        <ul class="members">
+          @for (member of l.members; track trackMember($index, member)) {
+            <li class="members__row">
+              <div class="members__identity">
+                <strong>{{ member.username }}</strong>
+                @if (member.teamName) {
+                  <span>{{ member.teamName }}</span>
+                } @else {
+                  <span class="members__no-team">No team yet</span>
+                }
+              </div>
+              @if (member.isOwner) {
+                <span class="badge badge--owner">Owner</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+  }
+</section>
+
+<!-- ============ Confirm dialog (Leave / Delete) ============ -->
+@if (pendingAction(); as action) {
+  <div class="modal-backdrop" (click)="closeConfirm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      @if (action === 'leave') {
+        <h2 class="modal__title">Leave this league?</h2>
+        <p class="modal__body">
+          You'll be removed from the standings. You can rejoin later with
+          the invite code if someone shares it with you.
+        </p>
+      } @else {
+        <h2 class="modal__title">Delete this league?</h2>
+        <p class="modal__body">
+          This permanently deletes the league and removes all members.
+          This cannot be undone.
+        </p>
+      }
+
+      @if (actionError()) {
+        <p class="form-error">{{ actionError() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="closeConfirm()"
+          [disabled]="isProcessing()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          [class.btn]="true"
+          [class.btn--danger]="action === 'delete'"
+          [class.btn--secondary]="action === 'leave'"
+          [disabled]="isProcessing()"
+          (click)="confirmAction()"
+        >
+          {{ isProcessing() ? 'Working…' : (action === 'delete' ? 'Delete' : 'Leave') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
