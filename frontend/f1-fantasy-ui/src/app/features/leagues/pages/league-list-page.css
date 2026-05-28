@@ -1,9 +1,8 @@
-/* :host applies the dark page background and shares the team-builder
-   palette via CSS variables. min-height makes it cover the viewport
-   even when the league list is empty. */
+/* The page-level dark background comes from .shell--fantasy on the app shell
+   (see AppShellComponent.isFantasyRoute). This :host only exposes CSS variables
+   and a text color for the panels/cards/modal below. */
 :host {
   display: block;
-  min-height: 100vh;
 
   /* Same tokens as team-builder-page.component.css so the two pages match. */
   --bg: #0b0b14;
@@ -15,7 +14,6 @@
   --accent: #ff2a23;
   --accent-soft: rgb(255 42 35 / 14%);
 
-  background: var(--bg);
   color: var(--text);
 }
 
@@ -26,6 +24,9 @@
 }
 
 /* ============ Header ============ */
+/* Same panel treatment as .builder-topbar in team-builder: rounded 24px
+   corners, dark vertical gradient, subtle border — so the header reads as
+   a surface instead of floating loose on the page background. */
 .leagues__header {
   display: flex;
   align-items: center;
@@ -33,6 +34,10 @@
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #141424, #0e0e18);
 }
 
 .leagues__header h1 {

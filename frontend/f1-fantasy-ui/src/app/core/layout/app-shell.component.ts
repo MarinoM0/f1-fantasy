@@ -28,8 +28,17 @@ export class AppShellComponent {
   }
 
   isFantasyRoute(): boolean {
-    const fantasyUrls = ['/', '/dashboard', '/team-builder', '/my-team'];
-    return fantasyUrls.includes(this.router.url);
+    const url = this.router.url;
+
+    // Any URL that exactly matches one of these, OR starts with "<prefix>/",
+    // gets the dark gridded "fantasy" background via .shell--fantasy.
+    // Using startsWith lets child routes like /leagues/:id inherit the styling.
+    const fantasyPrefixes = ['/dashboard', '/team-builder', '/my-team', '/leagues'];
+
+    return (
+      url === '/' ||
+      fantasyPrefixes.some((prefix) => url === prefix || url.startsWith(prefix + '/'))
+    );
   }
 
   toggleNav(): void {
