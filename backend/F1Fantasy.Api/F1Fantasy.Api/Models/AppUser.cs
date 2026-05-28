@@ -11,5 +11,6 @@
 
         public ICollection<LeagueMember> LeagueMemberships { get; set; } = new List<LeagueMember>();
         public ICollection<League> OwnedLeagues { get; set; } = new List<League>();
+        public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
     }
 }

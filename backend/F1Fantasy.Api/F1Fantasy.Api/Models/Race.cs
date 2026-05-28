@@ -11,5 +11,6 @@
 
         public RaceResult? RaceResult { get; set; }
         public ICollection<TeamScore> TeamScores { get; set; } = new List<TeamScore>();
+        public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
     }
 }

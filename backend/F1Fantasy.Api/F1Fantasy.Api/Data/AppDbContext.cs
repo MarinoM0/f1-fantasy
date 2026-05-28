@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<TeamScore> TeamScores => Set<TeamScore>();
     public DbSet<League> Leagues => Set<League>();
     public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
+    public DbSet<Prediction> Predictions => Set<Prediction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -180,6 +181,38 @@ public class AppDbContext : DbContext
                 .WithMany(x => x.LeagueMemberships)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Prediction>(entity =>
+        {
+            entity.HasIndex(x => new { x.UserId, x.RaceId }).IsUnique();
+
+            entity.Property(x => x.Score).HasPrecision(10, 2);
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.Predictions)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Race)
+                .WithMany(x => x.Predictions)
+                .HasForeignKey(x => x.RaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.P1Driver)
+               .WithMany()
+               .HasForeignKey(x => x.P1DriverId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.P2Driver)
+                .WithMany()
+                .HasForeignKey(x => x.P2DriverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.P3Driver)
+                .WithMany()
+                .HasForeignKey(x => x.P3DriverId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
