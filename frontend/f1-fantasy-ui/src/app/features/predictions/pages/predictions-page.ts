@@ -3,7 +3,16 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import { PredictionsApi } from '../services/predictions-api.service';
-import { PredictionDriver, PredictionRace } from '../models/prediction.models';
+import {
+  Prediction,
+  PredictionDriver,
+  PredictionLeaderboardEntry,
+  PredictionRace,
+} from '../models/prediction.models';
+import { AuthStateService } from '../../auth/services/auth-state.service';
+
+type PredictionsTab = 'predict' | 'history' | 'leaderboard';
+type SlotStatus = 'exact' | 'podium' | 'miss' | 'pending';
 
 @Component({
   standalone: true,
@@ -15,6 +24,9 @@ import { PredictionDriver, PredictionRace } from '../models/prediction.models';
 export class PredictionsPage implements OnInit {
   private readonly predictionsApi = inject(PredictionsApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authState = inject(AuthStateService);
+
+  readonly activeTab = signal<PredictionsTab>('predict');
 
   readonly race = signal<PredictionRace | null>(null);
   readonly availableDrivers = signal<PredictionDriver[]>([]);
@@ -30,6 +42,19 @@ export class PredictionsPage implements OnInit {
   readonly successMessage = signal('');
 
   readonly nowMs = signal(Date.now());
+
+  readonly predictions = signal<Prediction[]>([]);
+  readonly isLoadingHistory = signal(false);
+  readonly historyLoaded = signal(false);
+
+  readonly leaderboard = signal<PredictionLeaderboardEntry[]>([]);
+  readonly isLoadingLeaderboard = signal(false);
+  readonly leaderboardLoaded = signal(false);
+
+  readonly currentUserId = computed(() => {
+    const user = this.authState.currentUser();
+    return user ? Number(user.id) : null;
+  });
 
   readonly isPodiumComplete = computed(
     () => !!this.selectedP1() && !!this.selectedP2() && !!this.selectedP3()
@@ -69,6 +94,12 @@ export class PredictionsPage implements OnInit {
       .subscribe(() => this.nowMs.set(Date.now()));
   }
 
+  setTab(tab: PredictionsTab): void {
+    this.activeTab.set(tab);
+    if (tab === 'history' && !this.historyLoaded()) this.loadHistory();
+    if (tab === 'leaderboard' && !this.leaderboardLoaded()) this.loadLeaderboard();
+  }
+
   private loadUpcoming(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
@@ -93,6 +124,44 @@ export class PredictionsPage implements OnInit {
         error: () => {
           this.errorMessage.set('Failed to load the upcoming race.');
           this.isLoading.set(false);
+        },
+      });
+  }
+
+  private loadHistory(): void {
+    this.isLoadingHistory.set(true);
+
+    this.predictionsApi
+      .getMyPredictions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (predictions) => {
+          this.predictions.set(predictions);
+          this.historyLoaded.set(true);
+          this.isLoadingHistory.set(false);
+        },
+        error: () => {
+          this.predictions.set([]);
+          this.isLoadingHistory.set(false);
+        },
+      });
+  }
+
+  private loadLeaderboard(): void {
+    this.isLoadingLeaderboard.set(true);
+
+    this.predictionsApi
+      .getLeaderboard()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (entries) => {
+          this.leaderboard.set(entries);
+          this.leaderboardLoaded.set(true);
+          this.isLoadingLeaderboard.set(false);
+        },
+        error: () => {
+          this.leaderboard.set([]);
+          this.isLoadingLeaderboard.set(false);
         },
       });
   }
@@ -157,6 +226,8 @@ export class PredictionsPage implements OnInit {
         next: () => {
           this.isSubmitting.set(false);
           this.successMessage.set('Prediction saved! You can change it until the race locks.');
+          this.historyLoaded.set(false);
+          this.leaderboardLoaded.set(false);
         },
         error: (err) => {
           this.isSubmitting.set(false);
@@ -165,8 +236,54 @@ export class PredictionsPage implements OnInit {
       });
   }
 
+  slotStatus(prediction: Prediction, position: 1 | 2 | 3): SlotStatus {
+    if (!prediction.isScored) {
+      return 'pending';
+    }
+
+    const predicted =
+      position === 1 ? prediction.predictedP1
+      : position === 2 ? prediction.predictedP2
+      : prediction.predictedP3;
+
+    const actualAtSlot =
+      position === 1 ? prediction.actualP1
+      : position === 2 ? prediction.actualP2
+      : prediction.actualP3;
+
+    if (actualAtSlot && predicted.id === actualAtSlot.id) {
+      return 'exact';
+    }
+
+    const podiumIds = [
+      prediction.actualP1?.id,
+      prediction.actualP2?.id,
+      prediction.actualP3?.id,
+    ];
+
+    return podiumIds.includes(predicted.id) ? 'podium' : 'miss';
+  }
+
+  pickedCode(prediction: Prediction, position: 1 | 2 | 3): string {
+    if (position === 1) return prediction.predictedP1.code;
+    if (position === 2) return prediction.predictedP2.code;
+    return prediction.predictedP3.code;
+  }
+
+  isCurrentUserEntry(entry: PredictionLeaderboardEntry): boolean {
+    return entry.userId === this.currentUserId();
+  }
+
   trackDriver(_index: number, driver: PredictionDriver): number {
     return driver.id;
+  }
+
+  trackPrediction(_index: number, prediction: Prediction): number {
+    return prediction.id;
+  }
+
+  trackEntry(_index: number, entry: PredictionLeaderboardEntry): number {
+    return entry.userId;
   }
 
   private pad(value: number): string {

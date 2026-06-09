@@ -1,101 +1,199 @@
 <section class="predict">
-  @if (isLoading()) {
-    <p class="predict__status">Loading the next race…</p>
-  } @else if (errorMessage()) {
-    <p class="predict__status predict__status--error">{{ errorMessage() }}</p>
-  } @else if (race(); as r) {
-    <header class="predict__header">
-      <div>
-        <p class="eyebrow">Round {{ r.roundNumber }} · Podium prediction</p>
-        <h1 class="predict__title">{{ r.name }}</h1>
-        <p class="predict__country">{{ r.country }}</p>
-      </div>
-      <div class="lock-pill" [class.lock-pill--locked]="isLocked()">
-        <span class="lock-pill__label">{{ isLocked() ? 'Predictions' : 'Locks in' }}</span>
-        <strong class="lock-pill__value">{{ isLocked() ? 'LOCKED' : lockCountdown() }}</strong>
-      </div>
-    </header>
+  <div class="tabs">
+    <button
+      type="button"
+      class="tabs__tab"
+      [class.tabs__tab--active]="activeTab() === 'predict'"
+      (click)="setTab('predict')"
+    >
+      Predict
+    </button>
+    <button
+      type="button"
+      class="tabs__tab"
+      [class.tabs__tab--active]="activeTab() === 'history'"
+      (click)="setTab('history')"
+    >
+      My predictions
+    </button>
+    <button
+      type="button"
+      class="tabs__tab"
+      [class.tabs__tab--active]="activeTab() === 'leaderboard'"
+      (click)="setTab('leaderboard')"
+    >
+      Leaderboard
+    </button>
+  </div>
 
-    <div class="podium">
-      <div class="podium__col podium__col--second">
-        <div class="podium__driver-slot">
-          @if (selectedP2(); as d) {
-            <button type="button" class="podium__driver" (click)="clearSlot(2)" [disabled]="isLocked()">
-              <strong>{{ d.code }}</strong>
-              <span>{{ d.name }}</span>
-            </button>
-          } @else {
-            <div class="podium__empty">P2</div>
-          }
+  @if (activeTab() === 'predict') {
+    @if (isLoading()) {
+      <p class="predict__status">Loading the next race…</p>
+    } @else if (errorMessage()) {
+      <p class="predict__status predict__status--error">{{ errorMessage() }}</p>
+    } @else if (race(); as r) {
+      <header class="predict__header">
+        <div>
+          <p class="eyebrow">Round {{ r.roundNumber }} · Podium prediction</p>
+          <h1 class="predict__title">{{ r.name }}</h1>
+          <p class="predict__country">{{ r.country }}</p>
         </div>
-        <div class="podium__step podium__step--second">2</div>
-      </div>
-
-      <div class="podium__col podium__col--first">
-        <div class="podium__driver-slot">
-          @if (selectedP1(); as d) {
-            <button type="button" class="podium__driver" (click)="clearSlot(1)" [disabled]="isLocked()">
-              <strong>{{ d.code }}</strong>
-              <span>{{ d.name }}</span>
-            </button>
-          } @else {
-            <div class="podium__empty">P1</div>
-          }
+        <div class="lock-pill" [class.lock-pill--locked]="isLocked()">
+          <span class="lock-pill__label">{{ isLocked() ? 'Predictions' : 'Locks in' }}</span>
+          <strong class="lock-pill__value">{{ isLocked() ? 'LOCKED' : lockCountdown() }}</strong>
         </div>
-        <div class="podium__step podium__step--first">1</div>
-      </div>
+      </header>
 
-      <div class="podium__col podium__col--third">
-        <div class="podium__driver-slot">
-          @if (selectedP3(); as d) {
-            <button type="button" class="podium__driver" (click)="clearSlot(3)" [disabled]="isLocked()">
-              <strong>{{ d.code }}</strong>
-              <span>{{ d.name }}</span>
-            </button>
-          } @else {
-            <div class="podium__empty">P3</div>
-          }
+      <div class="podium">
+        <div class="podium__col podium__col--second">
+          <div class="podium__driver-slot">
+            @if (selectedP2(); as d) {
+              <button type="button" class="podium__driver" (click)="clearSlot(2)" [disabled]="isLocked()">
+                <strong>{{ d.code }}</strong>
+                <span>{{ d.name }}</span>
+              </button>
+            } @else {
+              <div class="podium__empty">P2</div>
+            }
+          </div>
+          <div class="podium__step podium__step--second">2</div>
         </div>
-        <div class="podium__step podium__step--third">3</div>
+
+        <div class="podium__col podium__col--first">
+          <div class="podium__driver-slot">
+            @if (selectedP1(); as d) {
+              <button type="button" class="podium__driver" (click)="clearSlot(1)" [disabled]="isLocked()">
+                <strong>{{ d.code }}</strong>
+                <span>{{ d.name }}</span>
+              </button>
+            } @else {
+              <div class="podium__empty">P1</div>
+            }
+          </div>
+          <div class="podium__step podium__step--first">1</div>
+        </div>
+
+        <div class="podium__col podium__col--third">
+          <div class="podium__driver-slot">
+            @if (selectedP3(); as d) {
+              <button type="button" class="podium__driver" (click)="clearSlot(3)" [disabled]="isLocked()">
+                <strong>{{ d.code }}</strong>
+                <span>{{ d.name }}</span>
+              </button>
+            } @else {
+              <div class="podium__empty">P3</div>
+            }
+          </div>
+          <div class="podium__step podium__step--third">3</div>
+        </div>
       </div>
-    </div>
 
-    @if (isLocked()) {
-      <p class="predict__note predict__note--locked">This race has started — predictions are locked.</p>
-    } @else {
-      <p class="predict__note">Tap a driver to fill the next spot. Tap a podium spot to clear it.</p>
-    }
+      @if (isLocked()) {
+        <p class="predict__note predict__note--locked">This race has started — predictions are locked.</p>
+      } @else {
+        <p class="predict__note">Tap a driver to fill the next spot. Tap a podium spot to clear it.</p>
+      }
 
-    <div class="driver-grid">
-      @for (driver of availableDrivers(); track trackDriver($index, driver)) {
-        <button
-          type="button"
-          class="driver-chip"
-          [class.driver-chip--selected]="isDriverSelected(driver)"
-          [disabled]="isLocked() || isDriverSelected(driver)"
-          (click)="assignDriver(driver)"
-        >
-          <strong>{{ driver.code }}</strong>
-          <span>{{ driver.name }}</span>
+      <div class="driver-grid">
+        @for (driver of availableDrivers(); track trackDriver($index, driver)) {
+          <button
+            type="button"
+            class="driver-chip"
+            [class.driver-chip--selected]="isDriverSelected(driver)"
+            [disabled]="isLocked() || isDriverSelected(driver)"
+            (click)="assignDriver(driver)"
+          >
+            <strong>{{ driver.code }}</strong>
+            <span>{{ driver.name }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="predict__actions">
+        @if (submitError()) {
+          <p class="form-error">{{ submitError() }}</p>
+        }
+        @if (successMessage()) {
+          <p class="form-success">{{ successMessage() }}</p>
+        }
+        <button type="button" class="btn btn--primary" [disabled]="!canSubmit()" (click)="submit()">
+          {{ isSubmitting() ? 'Saving…' : 'Save prediction' }}
         </button>
-      }
-    </div>
+      </div>
+    } @else {
+      <div class="predict__empty">
+        <h1>No race to predict right now</h1>
+        <p>Check back when the next Grand Prix opens for predictions.</p>
+      </div>
+    }
+  } @else if (activeTab() === 'history') {
+    @if (isLoadingHistory()) {
+      <p class="predict__status">Loading your predictions…</p>
+    } @else if (predictions().length === 0) {
+      <p class="predict__status">You haven't made any predictions yet.</p>
+    } @else {
+      <div class="history">
+        @for (p of predictions(); track trackPrediction($index, p)) {
+          <article class="pcard">
+            <header class="pcard__header">
+              <div>
+                <p class="pcard__round">Round {{ p.race.roundNumber }}</p>
+                <h2 class="pcard__race">{{ p.race.name }}</h2>
+              </div>
+              @if (p.isScored) {
+                <div class="pcard__score">
+                  <strong>{{ p.score }}</strong>
+                  <span>pts</span>
+                </div>
+              } @else {
+                <span class="badge badge--pending">Awaiting result</span>
+              }
+            </header>
 
-    <div class="predict__actions">
-      @if (submitError()) {
-        <p class="form-error">{{ submitError() }}</p>
-      }
-      @if (successMessage()) {
-        <p class="form-success">{{ successMessage() }}</p>
-      }
-      <button type="button" class="btn btn--primary" [disabled]="!canSubmit()" (click)="submit()">
-        {{ isSubmitting() ? 'Saving…' : 'Save prediction' }}
-      </button>
-    </div>
+            <div class="picks">
+              @for (slot of [1, 2, 3]; track slot) {
+                <div class="pick pick--{{ slotStatus(p, $any(slot)) }}">
+                  <span class="pick__pos">P{{ slot }}</span>
+                  <strong class="pick__code">{{ pickedCode(p, $any(slot)) }}</strong>
+                  <span class="pick__mark">
+                    @switch (slotStatus(p, $any(slot))) {
+                      @case ('exact') { ✓ }
+                      @case ('podium') { ~ }
+                      @case ('miss') { ✗ }
+                      @default { · }
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+
+            @if (p.isScored && p.actualP1 && p.actualP2 && p.actualP3) {
+              <p class="pcard__actual">
+                Actual: {{ p.actualP1.code }} · {{ p.actualP2.code }} · {{ p.actualP3.code }}
+              </p>
+            }
+          </article>
+        }
+      </div>
+    }
   } @else {
-    <div class="predict__empty">
-      <h1>No race to predict right now</h1>
-      <p>Check back when the next Grand Prix opens for predictions.</p>
-    </div>
+    @if (isLoadingLeaderboard()) {
+      <p class="predict__status">Loading leaderboard…</p>
+    } @else if (leaderboard().length === 0) {
+      <p class="predict__status">No scored predictions yet — the board fills in after the first race result.</p>
+    } @else {
+      <ol class="board">
+        @for (entry of leaderboard(); track trackEntry($index, entry)) {
+          <li class="board__row" [class.board__row--me]="isCurrentUserEntry(entry)">
+            <span class="board__rank">{{ entry.rank }}</span>
+            <div class="board__identity">
+              <strong>{{ entry.username }}</strong>
+              <span>{{ entry.predictionsScored }} scored</span>
+            </div>
+            <span class="board__points">{{ entry.totalPoints }} pts</span>
+          </li>
+        }
+      </ol>
+    }
   }
 </section>
