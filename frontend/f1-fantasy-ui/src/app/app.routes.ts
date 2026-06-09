@@ -8,6 +8,7 @@ import { MyTeamPageComponent } from './features/fantasy-team/pages/my-team-page.
 import { LeagueListPage } from './features/leagues/pages/league-list-page';
 import { LeagueDetailPageComponent } from './features/leagues/pages/league-detail-page';
 import { authGuard } from './core/guards/auth.guard';
+import { PredictionsPage } from './features/predictions/pages/predictions-page';
 
 export const routes: Routes = [
   {
@@ -20,6 +21,7 @@ export const routes: Routes = [
       { path: 'my-team', component: MyTeamPageComponent, canActivate: [authGuard] },
       { path: 'leagues', component: LeagueListPage, canActivate: [authGuard] },
       { path: 'leagues/:id', component: LeagueDetailPageComponent, canActivate: [authGuard] },
+      { path: 'predictions', component: PredictionsPage, canActivate: [authGuard]},
       { path: 'login', component: LoginPageComponent },
       { path: 'register', component: RegisterPageComponent }
     ]

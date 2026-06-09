@@ -30,10 +30,7 @@ export class AppShellComponent {
   isFantasyRoute(): boolean {
     const url = this.router.url;
 
-    // Any URL that exactly matches one of these, OR starts with "<prefix>/",
-    // gets the dark gridded "fantasy" background via .shell--fantasy.
-    // Using startsWith lets child routes like /leagues/:id inherit the styling.
-    const fantasyPrefixes = ['/dashboard', '/team-builder', '/my-team', '/leagues'];
+    const fantasyPrefixes = ['/dashboard', '/team-builder', '/my-team', '/leagues', '/predictions'];
 
     return (
       url === '/' ||
