@@ -22,6 +22,23 @@ type SlotStatus = 'exact' | 'podium' | 'miss' | 'pending';
   styleUrl: './predictions-page.css',
 })
 export class PredictionsPage implements OnInit {
+  private static readonly TEAM_COLORS: Record<string, string> = {
+    Ferrari: '#dc0000',
+    'Red Bull Racing': '#1e5bc6',
+    Mercedes: '#00d2be',
+    McLaren: '#ff8700',
+    'Aston Martin': '#006f62',
+    Alpine: '#0090ff',
+    Williams: '#005aff',
+    'Racing Bulls': '#6692ff',
+    Audi: '#8b1e2d',
+    'Audi F1 Team': '#8b1e2d',
+    'Kick Sauber': '#52e252',
+    Sauber: '#52e252',
+    'Haas F1 Team': '#b6babd',
+    Haas: '#b6babd',
+  };
+
   private readonly predictionsApi = inject(PredictionsApi);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authState = inject(AuthStateService);
@@ -40,6 +57,7 @@ export class PredictionsPage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly submitError = signal('');
   readonly successMessage = signal('');
+  private successTimeout: ReturnType<typeof setTimeout> | null = null;
 
   readonly nowMs = signal(Date.now());
 
@@ -92,6 +110,10 @@ export class PredictionsPage implements OnInit {
     interval(1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.nowMs.set(Date.now()));
+
+    this.destroyRef.onDestroy(() => {
+      if (this.successTimeout) clearTimeout(this.successTimeout);
+    });
   }
 
   setTab(tab: PredictionsTab): void {
@@ -166,20 +188,31 @@ export class PredictionsPage implements OnInit {
       });
   }
 
-  assignDriver(driver: PredictionDriver): void {
-    if (this.isLocked() || this.isDriverSelected(driver)) {
+  private slotSignal(position: 1 | 2 | 3) {
+    return position === 1 ? this.selectedP1 : position === 2 ? this.selectedP2 : this.selectedP3;
+  }
+
+  selectAt(position: 1 | 2 | 3, driver: PredictionDriver): void {
+    if (this.isLocked() || this.isSelectedElsewhere(position, driver)) {
       return;
     }
 
-    if (!this.selectedP1()) {
-      this.selectedP1.set(driver);
-    } else if (!this.selectedP2()) {
-      this.selectedP2.set(driver);
-    } else if (!this.selectedP3()) {
-      this.selectedP3.set(driver);
-    }
-
+    const slot = this.slotSignal(position);
+    slot.set(slot()?.id === driver.id ? null : driver);
     this.successMessage.set('');
+  }
+
+  isSelectedAt(position: 1 | 2 | 3, driver: PredictionDriver): boolean {
+    return this.slotSignal(position)()?.id === driver.id;
+  }
+
+  isSelectedElsewhere(position: 1 | 2 | 3, driver: PredictionDriver): boolean {
+    const others =
+      position === 1 ? [this.selectedP2(), this.selectedP3()]
+      : position === 2 ? [this.selectedP1(), this.selectedP3()]
+      : [this.selectedP1(), this.selectedP2()];
+
+    return others.some((d) => d?.id === driver.id);
   }
 
   clearSlot(position: 1 | 2 | 3): void {
@@ -228,6 +261,7 @@ export class PredictionsPage implements OnInit {
           this.successMessage.set('Prediction saved! You can change it until the race locks.');
           this.historyLoaded.set(false);
           this.leaderboardLoaded.set(false);
+          this.scheduleSuccessClear();
         },
         error: (err) => {
           this.isSubmitting.set(false);
@@ -274,6 +308,10 @@ export class PredictionsPage implements OnInit {
     return entry.userId === this.currentUserId();
   }
 
+  driverColor(driver: PredictionDriver): string {
+    return PredictionsPage.TEAM_COLORS[driver.constructorName] ?? '#ffffff';
+  }
+
   trackDriver(_index: number, driver: PredictionDriver): number {
     return driver.id;
   }
@@ -284,6 +322,11 @@ export class PredictionsPage implements OnInit {
 
   trackEntry(_index: number, entry: PredictionLeaderboardEntry): number {
     return entry.userId;
+  }
+
+  private scheduleSuccessClear(): void {
+    if (this.successTimeout) clearTimeout(this.successTimeout);
+    this.successTimeout = setTimeout(() => this.successMessage.set(''), 4000);
   }
 
   private pad(value: number): string {

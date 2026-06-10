@@ -313,12 +313,15 @@ namespace F1Fantasy.Api.Services
         {
             return await _dbContext.Drivers
                 .AsNoTracking()
-                .OrderBy(d => d.LastName)
+                .OrderByDescending(d => d.Price)
+                .ThenBy(d => d.LastName)
+                .ThenBy(d => d.FirstName)
                 .Select(d => new PredictionDriverDto
                 {
                     Id = d.Id,
                     Code = d.Code,
                     Name = d.FirstName + " " + d.LastName,
+                    ConstructorName = d.Constructor.Name,
                 })
                 .ToListAsync(ct);
         }
@@ -394,6 +397,7 @@ namespace F1Fantasy.Api.Services
                 Id = d.Id,
                 Code = d.Code,
                 Name = d.FirstName + " " + d.LastName,
+                ConstructorName = d.Constructor != null ? d.Constructor.Name : string.Empty,
             };
         }
     }

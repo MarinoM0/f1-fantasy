@@ -90,22 +90,28 @@
 
       @if (isLocked()) {
         <p class="predict__note predict__note--locked">This race has started — predictions are locked.</p>
-      } @else {
-        <p class="predict__note">Tap a driver to fill the next spot. Tap a podium spot to clear it.</p>
       }
 
-      <div class="driver-grid">
-        @for (driver of availableDrivers(); track trackDriver($index, driver)) {
-          <button
-            type="button"
-            class="driver-chip"
-            [class.driver-chip--selected]="isDriverSelected(driver)"
-            [disabled]="isLocked() || isDriverSelected(driver)"
-            (click)="assignDriver(driver)"
-          >
-            <strong>{{ driver.code }}</strong>
-            <span>{{ driver.name }}</span>
-          </button>
+      <div class="picker">
+        @for (pos of [2, 1, 3]; track pos) {
+          <div class="picker__col picker__col--{{ pos }}">
+            <h3 class="picker__title">{{ pos === 1 ? '1st' : pos === 2 ? '2nd' : '3rd' }} place</h3>
+            <div class="picker__list">
+              @for (driver of availableDrivers(); track trackDriver($index, driver)) {
+                <button
+                  type="button"
+                  class="prow"
+                  [style.--stripe]="driverColor(driver)"
+                  [class.prow--selected]="isSelectedAt($any(pos), driver)"
+                  [disabled]="isLocked() || isSelectedElsewhere($any(pos), driver)"
+                  (click)="selectAt($any(pos), driver)"
+                >
+                  <span class="prow__code">{{ driver.code }}</span>
+                  <span class="prow__name">{{ driver.name }}</span>
+                </button>
+              }
+            </div>
+          </div>
         }
       </div>
 
@@ -168,9 +174,12 @@
             </div>
 
             @if (p.isScored && p.actualP1 && p.actualP2 && p.actualP3) {
-              <p class="pcard__actual">
-                Actual: {{ p.actualP1.code }} · {{ p.actualP2.code }} · {{ p.actualP3.code }}
-              </p>
+              <div class="pcard__actual">
+                <span class="pcard__actual-label">Actual podium</span>
+                <span class="achip">{{ p.actualP1.code }}</span>
+                <span class="achip">{{ p.actualP2.code }}</span>
+                <span class="achip">{{ p.actualP3.code }}</span>
+              </div>
             }
           </article>
         }

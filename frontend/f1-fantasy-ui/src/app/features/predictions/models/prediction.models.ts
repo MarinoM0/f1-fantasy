@@ -1,7 +1,8 @@
 export interface PredictionDriver {
   id: number;
-  code: string; 
-  name: string;   
+  code: string;
+  name: string;
+  constructorName: string;
 }
 
 export interface PredictionRace {
