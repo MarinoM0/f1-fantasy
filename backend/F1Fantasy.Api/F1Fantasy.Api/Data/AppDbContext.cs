@@ -125,6 +125,8 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(x => new { x.RaceResultId, x.DriverId });
 
+            entity.Property(x => x.FantasyPoints).HasPrecision(10, 2);
+
             entity.HasOne(x => x.RaceResult)
                 .WithMany(x => x.DriverResults)
                 .HasForeignKey(x => x.RaceResultId);

@@ -12,7 +12,10 @@
         public Constructor Constructor { get; set; } = null!;
 
         public int Position { get; set; }
+        public int Grid { get; set; }
         public bool DidFinish { get; set; }
         public bool FastestLap { get; set; }
+
+        public decimal FantasyPoints { get; set; }
     }
 }
