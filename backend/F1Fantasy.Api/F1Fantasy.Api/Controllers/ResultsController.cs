@@ -11,10 +11,14 @@ namespace F1Fantasy.Api.Controllers
     public class ResultsController : ControllerBase
     {
         private readonly IResultsSyncService _resultsSyncService;
+        private readonly IFantasyScoringService _fantasyScoringService;
 
-        public ResultsController(IResultsSyncService resultsSyncService)
+        public ResultsController(
+            IResultsSyncService resultsSyncService,
+            IFantasyScoringService fantasyScoringService)
         {
             _resultsSyncService = resultsSyncService;
+            _fantasyScoringService = fantasyScoringService;
         }
 
         [HttpPost("sync")]
@@ -22,7 +26,9 @@ namespace F1Fantasy.Api.Controllers
         public async Task<IActionResult> Sync(CancellationToken ct)
         {
             var racesSynced = await _resultsSyncService.SyncCompletedRacesAsync(ct);
-            return Ok(new { racesSynced });
+            var driversScored = await _fantasyScoringService.ScoreAllResultsAsync(ct);
+
+            return Ok(new { racesSynced, driversScored });
         }
     }
 }

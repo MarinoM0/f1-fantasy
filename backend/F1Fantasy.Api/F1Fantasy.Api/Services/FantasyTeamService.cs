@@ -12,16 +12,16 @@ namespace F1Fantasy.Api.Services
         private const decimal BudgetCap = 100.00m;
 
         private readonly AppDbContext _dbContext;
-        private readonly IJolpicaService _jolpicaService;
+        private readonly IFantasyScoringService _fantasyScoringService;
         private readonly ILogger<FantasyTeamService> _logger;
 
         public FantasyTeamService(
             AppDbContext dbContext,
-            IJolpicaService jolpicaService,
+            IFantasyScoringService fantasyScoringService,
             ILogger<FantasyTeamService> logger)
         {
             _dbContext = dbContext;
-            _jolpicaService = jolpicaService;
+            _fantasyScoringService = fantasyScoringService;
             _logger = logger;
         }
 
@@ -67,18 +67,18 @@ namespace F1Fantasy.Api.Services
                 throw new InvalidOperationException("You have already used your one allowed team transfer");
             }
 
-            var liveStandings = await FetchLiveStandingsOrThrowAsync();
+            var currentPoints = await BuildCurrentPointsAsync();
 
             var newLockedInPoints = LivePointsCalculatorService.CalculateTeamPoints(
                 fantasyTeam,
-                liveStandings.DriverPointsByCode,
-                liveStandings.ConstructorPointsByJolpicaId);
+                currentPoints.DriverPointsByCode,
+                currentPoints.ConstructorPointsByJolpicaId);
 
             var driverBaselines = await BuildDriverBaselinesAsync(
-                selection.DriverIds, liveStandings.DriverPointsByCode);
+                selection.DriverIds, currentPoints.DriverPointsByCode);
 
             var constructorBaselines = await BuildConstructorBaselinesAsync(
-                selection.ConstructorIds, liveStandings.ConstructorPointsByJolpicaId);
+                selection.ConstructorIds, currentPoints.ConstructorPointsByJolpicaId);
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
@@ -142,30 +142,15 @@ namespace F1Fantasy.Api.Services
                 .FirstOrDefaultAsync();
         }
 
-        private async Task<LiveStandings> FetchLiveStandingsOrThrowAsync()
+        // Snapshot of each driver's / constructor's accumulated fantasy points so
+        // far. Used to lock in the outgoing team's earned points and to baseline
+        // the incoming picks on transfer.
+        private async Task<CurrentPoints> BuildCurrentPointsAsync()
         {
-            try
-            {
-                var driverStandingsTask = _jolpicaService.GetDriverStandingsAsync();
-                var constructorStandingsTask = _jolpicaService.GetConstructorStandingsAsync();
+            var driverPoints = await _fantasyScoringService.BuildDriverPointsByCodeAsync();
+            var constructorPoints = await _fantasyScoringService.BuildConstructorPointsByJolpicaIdAsync();
 
-                await Task.WhenAll(driverStandingsTask, constructorStandingsTask);
-
-                var driverStandings = await driverStandingsTask;
-                var constructorStandings = await constructorStandingsTask;
-
-                return new LiveStandings(
-                    LivePointsCalculatorService.BuildDriverPointsByCode(driverStandings),
-                    LivePointsCalculatorService.BuildConstructorPointsByJolpicaId(constructorStandings));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex,
-                    "Failed to fetch live standings while processing a fantasy team transfer");
-
-                throw new InvalidOperationException(
-                    "Unable to lock in your current points right now. Please try again in a moment.");
-            }
+            return new CurrentPoints(driverPoints, constructorPoints);
         }
 
   
@@ -356,7 +341,7 @@ namespace F1Fantasy.Api.Services
             IReadOnlyCollection<int> ConstructorIds,
             decimal TotalPrice);
 
-        private sealed record LiveStandings(
+        private sealed record CurrentPoints(
             IReadOnlyDictionary<string, decimal> DriverPointsByCode,
             IReadOnlyDictionary<string, decimal> ConstructorPointsByJolpicaId);
     }

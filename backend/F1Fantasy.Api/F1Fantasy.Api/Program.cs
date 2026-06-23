@@ -79,6 +79,7 @@ builder.Services.AddScoped<TeamBuilderService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddScoped<IResultsSyncService, ResultsSyncService>();
+builder.Services.AddScoped<IFantasyScoringService, FantasyScoringService>();
 
 builder.Services.AddHttpClient<IJolpicaService, JolpicaService>(client =>
 {

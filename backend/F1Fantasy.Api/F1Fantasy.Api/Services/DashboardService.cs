@@ -10,15 +10,18 @@ namespace F1Fantasy.Api.Services
     {
         private readonly AppDbContext _dbContext;
         private readonly IJolpicaService _jolpicaService;
+        private readonly IFantasyScoringService _fantasyScoringService;
         private readonly ILogger<DashboardService> _logger;
 
         public DashboardService(
             AppDbContext dbContext,
             IJolpicaService jolpicaService,
+            IFantasyScoringService fantasyScoringService,
             ILogger<DashboardService> logger)
         {
             _dbContext = dbContext;
             _jolpicaService = jolpicaService;
+            _fantasyScoringService = fantasyScoringService;
             _logger = logger;
         }
 
@@ -73,36 +76,19 @@ namespace F1Fantasy.Api.Services
                     .ThenInclude(teamConstructor => teamConstructor.Constructor)
                 .ToListAsync(cancellationToken);
 
-            var driverStandings = Array.Empty<JolpicaDriverStandingDto>() as IReadOnlyList<JolpicaDriverStandingDto>;
-            var constructorStandings = Array.Empty<JolpicaConstructorStandingDto>() as IReadOnlyList<JolpicaConstructorStandingDto>;
-
-            try
-            {
-                var driverStandingsTask = _jolpicaService.GetDriverStandingsAsync(cancellationToken: cancellationToken);
-                var constructorStandingsTask = _jolpicaService.GetConstructorStandingsAsync(cancellationToken: cancellationToken);
-
-                await Task.WhenAll(driverStandingsTask, constructorStandingsTask);
-
-                driverStandings = await driverStandingsTask;
-                constructorStandings = await constructorStandingsTask;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to fetch live standings for dashboard leaderboard");
-            }
-
-            var driverPointsByCode = LivePointsCalculatorService.BuildDriverPointsByCode(driverStandings);
-            var constructorPointsByJolpicaId = LivePointsCalculatorService.BuildConstructorPointsByJolpicaId(constructorStandings);
-
-            var hasLiveStandings = driverPointsByCode.Count > 0 || constructorPointsByJolpicaId.Count > 0;
+            // Team totals are driven by accumulated fantasy points from synced
+            // race results (not live championship standings).
+            var driverPointsByCode = await _fantasyScoringService
+                .BuildDriverPointsByCodeAsync(cancellationToken);
+            var constructorPointsByJolpicaId = await _fantasyScoringService
+                .BuildConstructorPointsByJolpicaIdAsync(cancellationToken);
 
             var leaderboard = new List<DashboardLeaderboardEntryDto>();
 
             foreach (var team in teams)
             {
-                var totalPoints = hasLiveStandings
-                    ? LivePointsCalculatorService.CalculateTeamPoints(team, driverPointsByCode, constructorPointsByJolpicaId)
-                    : team.User.TeamScores.Sum(score => score.Points);
+                var totalPoints = LivePointsCalculatorService.CalculateTeamPoints(
+                    team, driverPointsByCode, constructorPointsByJolpicaId);
 
                 leaderboard.Add(new DashboardLeaderboardEntryDto
                 {
