@@ -7,6 +7,10 @@
         public string Code { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
+        // The seeded starting price. Dynamic pricing drifts Price away from this
+        // based on form; keeping the anchor makes the recompute deterministic.
+        public decimal BasePrice { get; set; }
+
         public int ConstructorId { get; set; }
         public Constructor Constructor { get; set; } = null;
 

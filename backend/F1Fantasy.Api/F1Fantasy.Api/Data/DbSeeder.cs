@@ -37,6 +37,11 @@ namespace F1Fantasy.Api.Data
                 new() { Name = "Cadillac",          Code = "CAD", Price = 5.20m,  JolpicaConstructorId = "cadillac" }
             };
 
+            foreach (var constructor in constructors)
+            {
+                constructor.BasePrice = constructor.Price;
+            }
+
             await dbContext.Constructors.AddRangeAsync(constructors);
             await dbContext.SaveChangesAsync();
         }
@@ -97,6 +102,11 @@ namespace F1Fantasy.Api.Data
                 new() { FirstName = "Sergio", LastName = "Perez", Code = "PER", Price = 6.40m, ConstructorId = cad.Id },
                 new() { FirstName = "Valtteri", LastName = "Bottas", Code = "BOT", Price = 4.70m, ConstructorId = cad.Id }
             };
+
+            foreach (var driver in drivers)
+            {
+                driver.BasePrice = driver.Price;
+            }
 
             await dbContext.Drivers.AddRangeAsync(drivers);
             await dbContext.SaveChangesAsync();

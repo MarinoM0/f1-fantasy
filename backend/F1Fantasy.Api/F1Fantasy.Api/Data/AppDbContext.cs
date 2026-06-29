@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<League> Leagues => Set<League>();
     public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
     public DbSet<Prediction> Predictions => Set<Prediction>();
+    public DbSet<PriceHistory> PriceHistories => Set<PriceHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,7 @@ public class AppDbContext : DbContext
             entity.Property(x => x.Name).HasMaxLength(100).IsRequired();
             entity.Property(x => x.Code).HasMaxLength(10).IsRequired();
             entity.Property(x => x.Price).HasPrecision(10, 2);
+            entity.Property(x => x.BasePrice).HasPrecision(10, 2);
         });
 
         modelBuilder.Entity<Driver>(entity =>
@@ -57,6 +59,7 @@ public class AppDbContext : DbContext
             entity.Property(x => x.LastName).HasMaxLength(50).IsRequired();
             entity.Property(x => x.Code).HasMaxLength(10).IsRequired();
             entity.Property(x => x.Price).HasPrecision(10, 2);
+            entity.Property(x => x.BasePrice).HasPrecision(10, 2);
 
             entity.HasOne(x => x.Constructor)
                 .WithMany(x => x.Drivers)
@@ -215,6 +218,21 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(x => x.P3DriverId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PriceHistory>(entity =>
+        {
+            entity.Property(x => x.Price).HasPrecision(10, 2);
+
+            entity.HasOne(x => x.Driver)
+                .WithMany()
+                .HasForeignKey(x => x.DriverId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Constructor)
+                .WithMany()
+                .HasForeignKey(x => x.ConstructorId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

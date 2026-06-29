@@ -6,6 +6,9 @@
         public string Code { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
+        // Seeded starting price; dynamic pricing drifts Price relative to this.
+        public decimal BasePrice { get; set; }
+
         public string JolpicaConstructorId { get; set; } = string.Empty;
 
         public ICollection<Driver> Drivers { get; set; } = new List<Driver>();
