@@ -111,10 +111,24 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<AppDbContext>();
 
     await dbContext.Database.MigrateAsync();
     await DbSeeder.SeedAsync(dbContext);
+
+    // Refresh race results, scoring, and prices on startup. Wrapped so a slow or
+    // unavailable Jolpica never blocks the app from starting.
+    try
+    {
+        await services.GetRequiredService<IResultsSyncService>().SyncCompletedRacesAsync();
+        await services.GetRequiredService<IFantasyScoringService>().ScoreAllResultsAsync();
+        await services.GetRequiredService<IPricingService>().RecalculatePricesAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Startup results sync failed; continuing without it.");
+    }
 }
 
 app.Run();
